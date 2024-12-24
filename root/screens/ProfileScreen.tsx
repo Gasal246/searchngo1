@@ -4,20 +4,14 @@ import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { translations } from '../../lib/translations';
+import RootLayout from '../layouts/RootLayout';
 
 const ProfileScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const language = useSelector((state: any) => state.language.language);
 
     return (
-        <View>
-            <View style={styles.topbar_flex_container}>
-                <FontAwesome name="bars" color="gray" size={28} />
-                <View style={styles.center_logo}>
-                    <Image source={require("../../assets/images/png/sngcolor.png")} style={{ width: 60, height: 70, objectFit: "contain" }} />
-                </View>
-                <FontAwesome name='user' color="gray" size={35} />
-            </View>
+        <RootLayout>
             <View style={styles.cover_view}>
                 <View style={styles.absolute_view}>
                     <TouchableOpacity style={styles.absolute_flex_view} onPress={() => navigation.navigate("Wallet")}>
@@ -41,15 +35,15 @@ const ProfileScreen = () => {
                         <FontAwesome name="user-circle-o" color="#51E8BF" size={80} />
                         <View style={{ width: "70%" }}>
                             <Text style={styles.body_title}>Muhammed Shiyas</Text>
-                            <View style={{...styles.body_obj_text_flex, flexDirection: language === 'arabic' || language === 'urdu' ? 'row-reverse' : 'row'}}>
+                            <View style={{ ...styles.body_obj_text_flex, flexDirection: language === 'arabic' || language === 'urdu' ? 'row-reverse' : 'row' }}>
                                 <Text style={styles.body_key}>{translations[language].pf_nationality} :</Text>
                                 <Text style={styles.body_value}>Indian</Text>
                             </View>
-                            <View style={{...styles.body_obj_text_flex, flexDirection: language === 'arabic' || language === 'urdu' ? 'row-reverse' : 'row'}}>
+                            <View style={{ ...styles.body_obj_text_flex, flexDirection: language === 'arabic' || language === 'urdu' ? 'row-reverse' : 'row' }}>
                                 <Text style={styles.body_key}>{translations[language].pf_contact} :</Text>
                                 <Text style={styles.body_value}>0547626241</Text>
                             </View>
-                            <View style={{...styles.body_obj_text_flex, flexDirection: language === 'arabic' || language === 'urdu' ? 'row-reverse' : 'row'}}>
+                            <View style={{ ...styles.body_obj_text_flex, flexDirection: language === 'arabic' || language === 'urdu' ? 'row-reverse' : 'row' }}>
                                 <Text style={styles.body_key}>{translations[language].pf_blood} :</Text>
                                 <Text style={styles.body_value}>A+</Text>
                             </View>
@@ -57,7 +51,7 @@ const ProfileScreen = () => {
                     </View>
                 </View>
             </View>
-        </View>
+        </RootLayout>
     );
 }
 

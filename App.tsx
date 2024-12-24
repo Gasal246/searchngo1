@@ -3,12 +3,13 @@ import { StatusBar, StyleSheet } from 'react-native';
 import SplashScreen from './components/shared/SplashScreen';
 import SelectLanguage from './root/screens/SelectLanguage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import './assets/index.css'
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './root/screens/HomeScreen';
 
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { store } from './redux/store';
 import MobileVerification from './root/screens/MobileVerification';
 import UpdateProfile from './root/screens/UpdateProfile';
@@ -25,6 +26,8 @@ import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { setIpAddress } from './lib/constants/appConstants';
 import { getVerifiedData } from './helpers/UserHelper';
+import LoaderSpin from './components/shared/LoaderSpin';
+import AvailableMembership from './root/screens/AvailableMembership';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -52,7 +55,7 @@ export default function App() {
     }
   }
 
-  async function userdataSetting () {
+  async function userdataSetting() {
     setUserData(await getVerifiedData());
   }
 
@@ -123,13 +126,17 @@ export default function App() {
       {showSplashScreen ? <SplashScreen /> :
         <TanstackProvider>
           <SafeAreaView style={{ backgroundColor: "#222831", width: "100%", height: "100%" }}>
+            <LoaderSpin />
             <StatusBar barStyle="light-content" backgroundColor="#222831" />
             <NavigationContainer>
-              <Stack.Navigator initialRouteName={userData?.token ? "UpdateProfile" : "Language"} screenOptions={{
+              <Stack.Navigator initialRouteName={userData?.token ? "Services" : "Language"} screenOptions={{
                 contentStyle: {
                   backgroundColor: "#222831"
                 }
               }}>
+                <Stack.Screen name="AvailableMembership" component={AvailableMembership} options={{
+                  headerShown: false,
+                }} />
                 <Stack.Screen name="Wallet" component={WalletScreen} options={{
                   headerShown: false,
                 }} />

@@ -1,73 +1,91 @@
-import { FontAwesome } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import RootLayout from '../layouts/RootLayout';
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import MenuBar from '../../components/settings/MenuBar';
 
 const ServicesScreen = () => {
-    const navigation = useNavigation<NavigationProp>()
+    const navigation = useNavigation<NavigationProp>();
+
     return (
-        <View>
-            <View style={styles.topbar_flex_container}>
-                <MenuBar />
-                <View style={styles.center_logo}>
-                    <Image source={require("../../assets/images/png/sngcolor.png")} style={{ width: 60, height: 70, objectFit: "contain" }} />
+        <RootLayout>
+            <View style={styles.grid_view_fixed}>
+                <View style={styles.title_area}>
+                    <Text style={styles.title_text}>Sevices at your finger tips</Text>
                 </View>
-                <FontAwesome name='user' color="gray" size={35} onPress={() => navigation.navigate("Profile")} />
-            </View>
-            <ScrollView style={styles.grid_scroll_view}>
                 <View style={styles.grid_service_view}>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>Food Mate</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>Groccery</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
+                    <TouchableOpacity style={styles.service_column} onPress={() => navigation.navigate('Language')}>
+                        <View style={styles.service_view}>
+                            <Image source={require('../../assets/images/png/Wallet.png')} style={styles.service_icon} />
+                        </View>
+                        <Text style={styles.service_title}>Wallet</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.service_column}>
+                        <View style={styles.service_view}>
+                            <Image source={require('../../assets/images/png/WaterPlus.png')} style={styles.service_icon} />
+                        </View>
                         <Text style={styles.service_title}>Water Plus</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>Laundry</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>Restaurant</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>Well Clean</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>Find Devices</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>Jobs In</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.service_column}>
+                        <View style={styles.service_view}>
+                            <Image source={require('../../assets/images/png/MessMate.png')} style={styles.service_icon} />
+                        </View>
+                        <Text style={styles.service_title}>Mess Mate</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.service_column}>
+                        <View style={styles.service_view}>
+                            <Image source={require('../../assets/images/png/SmartWash.png')} style={styles.service_icon} />
+                        </View>
+                        <Text style={styles.service_title}>Smart Wash</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.service_column}>
+                        <View style={styles.service_view}>
+                            <Image source={require('../../assets/images/png/Ex-rate.png')} style={styles.service_icon} />
+                        </View>
+                        <Text style={styles.service_title}>Ex-Rate</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.service_column}>
+                        <View style={styles.service_view}>
+                            <Image source={require('../../assets/images/png/BestOffers.png')} style={styles.service_icon} />
+                        </View>
+                        <Text style={styles.service_title}>Best Offers</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.service_column}>
+                        <View style={styles.service_view}>
+                            <Image source={require('../../assets/images/png/BigWin.png')} style={styles.service_icon} />
+                        </View>
                         <Text style={styles.service_title}>Big Win</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>EX Rate</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>My Files</Text>
-                    </View>
-                    <View style={styles.service_column}>
-                        <View style={styles.service_view}><FontAwesome name='image' size={60} color="grey" /></View>
-                        <Text style={styles.service_title}>Weather</Text>
-                    </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.service_column}>
+                        <View style={styles.service_view}>
+                            <Image source={require('../../assets/images/png/HelpDesk.png')} style={styles.service_icon} />
+                        </View>
+                        <Text style={styles.service_title}>Help Desk</Text>
+                    </TouchableOpacity>
                 </View>
-            </ScrollView>
-        </View>
+            </View>
+            <View style={styles.title_area}>
+                <Text style={styles.title_text}>Deals for you</Text>
+            </View>
+            <View style={{ width: '100%', paddingHorizontal: 10, flex: 1 }}>
+                <View style={styles.scrollViewWrapper}>
+                    <ScrollView style={styles.grid_scroll_view}>
+                        <TouchableOpacity style={styles.deal_view}>
+                            <Image source={require('../../assets/images/png/Offers01.png')} style={styles.deal_image} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.deal_view}>
+                            <Image source={require('../../assets/images/png/Offers02.png')} style={styles.deal_image} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.deal_view}>
+                            <Image source={require('../../assets/images/png/Offers03.png')} style={styles.deal_image} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.deal_view}>
+                            <Image source={require('../../assets/images/png/Offers04.png')} style={styles.deal_image} />
+                        </TouchableOpacity>
+                        <View style={{ paddingVertical: 20 }}></View>
+                    </ScrollView>
+                </View>
+            </View>
+        </RootLayout>
     );
 }
 
@@ -86,32 +104,46 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         paddingHorizontal: 20
     },
+    scrollViewWrapper: {
+        width: '100%',
+        flex: 1,
+        marginTop: 10,
+        borderTopRightRadius: 20,
+        borderTopLeftRadius: 20,
+        overflow: 'hidden',
+    },
     grid_scroll_view: {
+        width: '100%',
+        flex: 1,
+        paddingHorizontal: 0,
+    },
+    grid_view_fixed: {
         width: "100%",
-        height: "90%",
+        height: '35%',
+        marginBottom: 25,
+        marginTop: 15
     },
     grid_service_view: {
         display: "flex",
         flexWrap: "wrap",
         flexDirection: "row",
-        gap: 10,
         alignItems: "center",
         justifyContent: "center",
-        paddingVertical: 30
+        paddingVertical: 10,
+        gap: 1,
     },
     service_column: {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        width: "30%",
-        height: 120,
-        padding: 10,
-        marginBottom: 10
+        width: "24%",
+        height: "40%",
+        padding: 5,
+        marginBottom: 20
     },
     service_view: {
-        borderColor: "white",
-        borderWidth: 2,
+        backgroundColor: 'white',
         borderRadius: 15,
         width: "100%",
         height: "100%",
@@ -119,9 +151,37 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     service_title: {
-        fontSize: 16,
+        fontSize: 12,
         color: "white",
-        fontWeight: "600"
+        fontWeight: "700"
+    },
+    service_icon: {
+        width: '70%',
+        height: 'auto',
+        aspectRatio: 1 / 1
+    },
+    title_area: {
+        width: "95%",
+        backgroundColor: "white",
+        marginHorizontal: 'auto',
+        borderRadius: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 5,
+    },
+    title_text: {
+        textAlign: 'center',
+        fontSize: 16,
+        fontWeight: '700'
+    },
+    deal_view: {
+        width: "100%",
+        marginBottom: 10,
+    },
+    deal_image: {
+        width: "100%",
+        height: 'auto',
+        aspectRatio: 7 / 2,
+        borderRadius: 20,
     }
 })
 

@@ -1,28 +1,26 @@
-import React = require('react');
 import { FontAwesome } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import GradientButtonOne from '../../components/shared/GradientButtonOne';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import { translations } from '../../lib/translations';
-import { getVerifiedData } from '../../helpers/UserHelper';
 import { RootState } from '../../redux/store';
+import CameraModal from '../../components/shared/CameraModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { splitString } from '../../lib/utils';
 
 const UpdateProfile = () => {
     const navigation = useNavigation<NavigationProp>();
     const language = useSelector((state: RootState) => state.language.language);
     const userData = useSelector((state: RootState) => state.authentication.user_data);
-    const [fullName, setFullName] = useState<string>(userData.name);
+    const [fullName, setFullName] = useState<string>(userData?.name);
+    const [imageUrl, setImageUrl] = useState<any>('');
 
     const handleNameOnChange = (text: string) => {
         setFullName(text)
     }
-
-    useEffect(() => {
-        console.log(userData)
-    }, [])
-
+    
     return (
         <View>
             <View style={styles.center_logo}>
@@ -31,13 +29,19 @@ const UpdateProfile = () => {
             <View style={styles.cover_view}>
                 <View style={styles.absolute_view}>
                     <Text style={styles.absolute_title}>{translations[language].update_pf_id}</Text>
-                    <Text style={styles.userid}>{userData?.uuid}</Text>
+                    <Text style={styles.userid}>{splitString(userData?.uuid, 4)}</Text>
                 </View>
                 <View style={styles.form_view}>
-                    <View style={styles.camera_view}>
-                        <FontAwesome name='camera' size={60} color={"gray"} />
-                        {/* <Image source={{ uri: 'http://localhost:3019/public/uploads/user/profile/user_image-1729588788153.jpg' }} style={{ width: 130, height: 100, objectFit: "contain" }} /> */}
-                    </View>
+                    <CameraModal
+                        setImageUri={setImageUrl}>
+                        {imageUrl ? (
+                            <Image source={{ uri: imageUrl }} style={styles.previewImage} />
+                        ) : (
+                            <View style={styles.camera_view}>
+                                <FontAwesome name='camera' size={60} color='gray' />
+                            </View>
+                        )}
+                    </CameraModal>
                     <View style={styles.input_area}>
                         <FontAwesome name='user-circle' size={30} color={"gray"} />
                         <TextInput placeholder={`${translations[language].update_pf_name}`}
@@ -46,12 +50,7 @@ const UpdateProfile = () => {
                             onChangeText={handleNameOnChange}
                         />
                     </View>
-                    {/* Country will be added on next update of the project or some other place of this project. */}
-                    {/* <View style={styles.input_area}>
-                        <FontAwesome name='globe' size={30} color={"gray"} />
-                        <TextInput placeholder={`${translations[language].update_pf_country}`} style={styles.text_input} />
-                    </View> */}
-                    <GradientButtonOne colors={["#4EFBE6", "#5AE7A6"]} style={{ borderRadius: 10, width: "100%", marginBottom: 10 }} onPress={() => navigation.navigate("Home")}>
+                    <GradientButtonOne colors={["#4EFBE6", "#5AE7A6"]} style={{ borderRadius: 10, width: "100%", marginBottom: 10 }} onPress={() => navigation.replace("Services")}>
                         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                             <Text style={styles.textSubmit}>{translations[language].update_pf_submit} </Text>
                             <FontAwesome name="arrow-right" size={20} color="white" />
@@ -112,14 +111,15 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        paddingBottom: 20
+        paddingBottom: 20,
+        zIndex: -1
     },
     camera_view: {
         padding: 25,
         borderColor: "white",
         borderWidth: 2,
         borderRadius: 90,
-        marginBottom: 20
+        marginBottom: 20,
     },
     input_area: {
         display: "flex",
@@ -143,6 +143,14 @@ const styles = StyleSheet.create({
         color: "white",
         fontWeight: "800",
         fontSize: 20,
+    },
+    previewImage: {
+        objectFit: 'cover',
+        aspectRatio: 1 / 1,
+        width: '50%',
+        height: 'auto',
+        borderRadius: 30,
+        marginBottom: 15
     }
 })
 

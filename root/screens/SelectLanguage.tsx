@@ -6,16 +6,25 @@ import { useDispatch } from 'react-redux';
 import { setLanguage } from '../../redux/slices/languageSlice';
 import { translations } from '../../lib/translations';
 import { useSelector } from 'react-redux';
+import { getVerifiedData } from '../../helpers/UserHelper';
 
 const SelectLanguage = () => {
-    const navigation = useNavigation<NavigationProp>()
-    const language = useSelector((state: any) => state.language.language)
-
+    const navigation = useNavigation<NavigationProp>();
+    const language = useSelector((state: any) => state.language.language);
     const dispatch = useDispatch();
 
     const handleSelectLanguage = (language: string) => {
         dispatch(setLanguage(language));
     };
+
+    const handleContinueFunction = async () => {
+        const data = await getVerifiedData();
+        if(data){
+            navigation.goBack();
+        }else{
+            navigation.navigate('MobileVerification');
+        }
+    }
 
     return (
         <View>
@@ -59,7 +68,7 @@ const SelectLanguage = () => {
                         <Text style={styles.selectText}>తెలుగు</Text>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.viewSubmit} onPress={() => navigation.navigate("MobileVerification")}>
+                <TouchableOpacity style={styles.viewSubmit} onPress={handleContinueFunction}>
                     <Text style={styles.textSubmit}>{translations[language].choose_lang_submit} </Text>
                     <FontAwesome name="arrow-right" size={20} color="white" />
                 </TouchableOpacity>

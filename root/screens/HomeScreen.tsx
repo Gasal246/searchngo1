@@ -16,7 +16,7 @@ const HomeScreen = () => {
                 <Image source={require("../../assets/images/png/sngcolor.png")} style={{ width: 130, height: 100, objectFit: "contain" }} />
             </View>
             <View style={styles.container}>
-                <View style={styles.membership_card}>
+                {/* <View style={styles.membership_card}>
                     <View style={styles.title_view}>
                         <Text style={styles.title_text}>{translations[language].home_title}</Text>
                     </View>
@@ -34,7 +34,7 @@ const HomeScreen = () => {
                             </View>
                         </View>
                     </View>
-                </View>
+                </View> */}
                 <View style={styles.connectivity_view}>
                     <Text style={styles.connectivity_text}>{translations[language].home_connectivity}</Text>
                     <Text style={styles.connectivity_desc}>{translations[language].home_conn_desc}</Text>

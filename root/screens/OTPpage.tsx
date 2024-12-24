@@ -5,11 +5,13 @@ import GradientButtonOne from '../../components/shared/GradientButtonOne';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { translations } from '../../lib/translations';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Toast from 'react-native-toast-message';
 import { useVerifyOtp } from '../../query/verification/query';
 import { RootState } from '../../redux/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loadAuthentication, loadToken, loadUserData } from '../../redux/slices/appAuthenticationSlice';
+import { loadLoadingModal } from '../../redux/slices/remoteModalSlice';
 
 const OTPpage = () => {
     const navigation = useNavigation<NavigationProp>();
@@ -19,6 +21,7 @@ const OTPpage = () => {
     const mobile = useSelector((state: RootState) => state.verification.mobile);
     const device_mac_id = useSelector((state: RootState) => state.verification.device_mac_id);
     const country_code = useSelector((state: RootState) => state.verification.country_code);
+    const dispatch = useDispatch();
 
     const refs: RefObject<TextInput>[] = [
         useRef<TextInput>(null),
@@ -60,6 +63,7 @@ const OTPpage = () => {
     };
 
     async function verifyPhoneNumberAndProgress() {
+        dispatch(loadLoadingModal(true))
         const fullCode = codes!.join("");
         const formData = {
             otp: parseInt(fullCode),
@@ -70,15 +74,20 @@ const OTPpage = () => {
         try {
             const res = await verifyOtp(formData);
             console.log(res);
-            if (res.status === 201) {
+            if (res?.status === 201) {
+                await AsyncStorage.setItem('verification', JSON.stringify(res.data))
+                dispatch(loadAuthentication(true));
+                dispatch(loadUserData(JSON.stringify(res?.data?.user_data)));
+                dispatch(loadToken(res?.data?.token));
+                dispatch(loadLoadingModal(false))
                 Toast.show({
                     type: "success",
                     text1: 'User Verified',
                     text2: "OTP Verification Successfull"
                 })
-                AsyncStorage.setItem('verification', JSON.stringify(res.data))
-                navigation.navigate('UpdateProfile')
+                return navigation.replace('UpdateProfile');
             } else {
+                dispatch(loadLoadingModal(false))
                 return Toast.show({
                     type: "error",
                     text1: 'OTP Verification Failed',
@@ -116,7 +125,7 @@ const OTPpage = () => {
                     />
                     <GradientButtonOne colors={["#4EFBE6", "#5AE7A6"]} style={{ marginTop: 20, borderRadius: 10 }} onPress={verifyPhoneNumberAndProgress}>
                         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                            <Text style={styles.textSubmit}>{translations[language].verify_otp} </Text>
+                            <Text style={styles.textSubmit}>{pendingVerification ? 'Verification..' : translations[language].verify_otp} </Text>
                             <FontAwesome name="arrow-right" size={20} color="white" />
                         </View>
                     </GradientButtonOne>

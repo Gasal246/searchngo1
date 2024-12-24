@@ -27,10 +27,15 @@ const authenticationSlice = createSlice({
         loadToken: (state, action:PayloadAction<string>) => {
             state.token = action.payload;
             AsyncStorage.setItem('user_token', action.payload)
+        },
+        loadLogoutApp: (state) => {
+            state.isAuthenticated = false
+            state.token = null
+            state.user_data = null
         }
     }
 })
 
-export const { loadAuthentication, loadUserData, loadToken } = authenticationSlice.actions;
+export const { loadAuthentication, loadUserData, loadToken, loadLogoutApp } = authenticationSlice.actions;
 export default authenticationSlice.reducer;
 

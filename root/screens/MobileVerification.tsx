@@ -12,6 +12,7 @@ import { countryCallingCodes, getPhoneNumberLength } from '../../lib/constants/p
 import { getIpAddress, setIpAddress } from '../../lib/constants/appConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setVerificationState } from '../../redux/slices/verificationSlice';
+import { loadLoadingModal } from '../../redux/slices/remoteModalSlice';
 
 const MobileVerification = () => {
     const [via, setVia] = useState<'phone' | 'email'>('phone');
@@ -40,6 +41,7 @@ const MobileVerification = () => {
     }
 
     const handleSendOtp = async () => {
+        dispatch(loadLoadingModal(true))
         if (via === 'phone') {
             const formData = {
                 mobile: parseInt(value),
@@ -49,6 +51,7 @@ const MobileVerification = () => {
             const country = countryCallingCodes.find((c: any) => c.dial_code === countryCode);
             const phLength = getPhoneNumberLength(country?.code);
             if (value.length !== phLength) {
+                dispatch(loadLoadingModal(false))
                 return Toast.show({
                     type: 'error',
                     text1: `${translations[language].mobile_v_phone_title}`,
@@ -57,6 +60,7 @@ const MobileVerification = () => {
             }
             const res = await sendOtp(formData);
             if(res.error){
+                dispatch(loadLoadingModal(false))
                 return Toast.show({
                     type: "error",
                     text1: "Error Sending Otp"
@@ -75,6 +79,7 @@ const MobileVerification = () => {
                 device_mac_id: mac_id,
                 camp_id: null
             }))
+            dispatch(loadLoadingModal(false))
             navigation.navigate('OtpPage');
         } else if (via === 'email') {
             const formData = {
@@ -113,7 +118,7 @@ const MobileVerification = () => {
                 }
                 <GradientButtonOne disabled={sendingOtp} colors={["#4EFBE6", "#5AE7A6"]} style={{ marginTop: 20, borderRadius: 10 }} onPress={handleSendOtp}>
                     <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                        <Text style={styles.textSubmit}>{translations[language].mobile_v_submit} </Text>
+                        <Text style={styles.textSubmit}>{sendingOtp ? 'Sending..' : translations[language].mobile_v_submit} </Text>
                         <FontAwesome name="arrow-right" size={20} color="white" />
                     </View>
                 </GradientButtonOne>

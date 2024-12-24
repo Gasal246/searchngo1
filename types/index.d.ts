@@ -9,4 +9,5 @@ declare type RootStackParamList = {
   Services: undefined;
   Profile: undefined;
   Wallet: undefined;
+  AvailableMembership: undefined;
 };

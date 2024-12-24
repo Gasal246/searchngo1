@@ -49,18 +49,15 @@ type TranslationProps = Record<string, {
     home_skip: string;
     home_submit: string;
     // service page
-    service_food?: string;
-    service_goccery?: string;
-    service_water?: string;
-    service_laundry?: string;
-    service_restaurant?: string;
-    service_clean?: string;
-    service_devices?: string;
-    service_jobs?: string;
-    service_win?: string;
-    service_rate?: string;
-    service_files?: string;
-    service_weather?: string;
+    service_at_your_finger_tips?: string;
+    service_wallet?: string;
+    service_water_plus?: string;
+    service_mess_mate?: string;
+    service_smart_wash?: string;
+    service_ex_rate?: string;
+    service_best_offers?: string;
+    service_big_win?: string;
+    service_help_desk?: string;
     // profile page
     pf_yourid: string;
     pf_membership: string;
@@ -74,6 +71,28 @@ type TranslationProps = Record<string, {
     wallet_fund_add: string;
     wallet_fund_used: string;
     wallet_add_fund: string;
+    // other
+    current_membership: string;
+    membership_expire_on: string;
+    retake: string;
+    useit: string;
+    processing: string;
+    show_your_face: string;
+    need_cam_permission: string;
+    dashboard: string;
+    membership: string;
+    connect_to_membership: string;
+    available_membership: string;
+    membership_history: string;
+    user: string;
+    user_profile: string;
+    lang_settings: string;
+    change_mob_number: string;
+    change_service_location: string;
+    application: string;
+    logs: string;
+    change_pin: string;
+    sign_out: string;
 }>
 
 export const translations: TranslationProps = {

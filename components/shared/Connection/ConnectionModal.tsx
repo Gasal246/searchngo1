@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { translations } from '../../../lib/translations';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,6 +7,10 @@ import GradientButtonOne from '../GradientButtonOne';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { loadConnectionModal } from '../../../redux/slices/remoteModalSlice';
+import Toast from 'react-native-toast-message';
+import { useValidateCamp } from '../../../query/camp/queries';
+import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
+import { fetchLocationData } from '../../../redux/slices/NetworkSlice';
 
 const ConnectionModal = () => {
     const modalVisible = useSelector((state: RootState) => state.remoteModals.connectionModal);
@@ -16,7 +20,7 @@ const ConnectionModal = () => {
 
     const closeModal = () => dispatch(loadConnectionModal(false));
     const currentSSID = useSelector((state: RootState) => state.networkData.ssid);
-    const location_data = useSelector((state: RootState) => state.networkData.location_info);
+    const { token: authToken, user_data: userData } = useSelector((state: RootState) => state.authentication);
 
     return (
         <View style={styles.container}>
@@ -41,7 +45,7 @@ const ConnectionModal = () => {
                                     </View>
                                     <View style={styles.location_view}>
                                         <Text style={styles.location_title}>{translations[language].home_site_title}</Text>
-                                        <Text style={styles.location_desc}>{translations[language].home_site_info}</Text>
+                                        <Text style={styles.location_desc}>{userData?.location_camp?.location_camp_name || 'Out of service area'}</Text>
                                     </View>
 
                                     <View style={styles.flex_container}>

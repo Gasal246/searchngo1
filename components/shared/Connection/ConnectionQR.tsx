@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
@@ -7,16 +7,14 @@ import { loadQRModal } from '../../../redux/slices/remoteModalSlice';
 import { splitString } from '../../../lib/utils';
 import QRCode from 'react-native-qrcode-svg';
 import { translations } from '../../../lib/translations';
+import TimeCounter from '../utility/TimeCounter';
 
 const ConnectionQR = () => {
     const modalVisible = useSelector((state: RootState) => state.remoteModals.qrModal);
     const userData = useSelector((state: RootState) => state.authentication.user_data);
     const language = useSelector((state: RootState) => state.language.language);
+    const { currentMemebership } = useSelector((state: RootState) => state.membership);
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        console.log(userData)
-    }, [])
 
     return (
         <View>
@@ -47,14 +45,14 @@ const ConnectionQR = () => {
                                     <Text style={{ ...styles.section_title, fontWeight: '500' }}>UUID</Text>
                                     <Text style={styles.text_uuid}>{splitString(userData?.uuid, 4)}</Text>
                                 </View>
-                                <View style={styles.uuid_section}>
+                                {currentMemebership?.package_name && <View style={styles.uuid_section}>
                                     <Text style={styles.section_title}>{translations[language].current_membership}</Text>
-                                    <Text style={styles.section_description}>SILVER 30 DAYS</Text>
-                                </View>
-                                <View style={styles.uuid_section}>
+                                    <Text style={styles.section_description}>{currentMemebership?.package_name}</Text>
+                                </View>}
+                                {currentMemebership?.package_expiry_date && <View style={styles.uuid_section}>
                                     <Text style={styles.section_title}>{translations[language].membership_expire_on}</Text>
-                                    <Text style={styles.section_description}>01 JAN 2025 10:10:09</Text>
-                                </View>
+                                    <TimeCounter textStyle={styles.section_description} targetDate={currentMemebership?.package_expiry_date} />
+                                </View>}
                             </View>
                         </View>
                     </View>
@@ -129,7 +127,7 @@ const styles = StyleSheet.create({
     },
     section_description: {
         color: 'gray',
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: '500',
         letterSpacing: 1
     }

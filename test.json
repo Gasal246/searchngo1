@@ -1,0 +1,40 @@
+{
+    "camp_id": "66fa8aac30541af749baf67d",
+    "createdAt": "2024-12-24T13:25:45.005Z",
+    "created_by": "67657e90f9b0c5635a506cfa",
+    "created_by_type": "pos",
+    "download_bandwidth": 100,
+    "duration": 43200,
+    "id": "676ab659f9b0c5635a508821",
+    "order_from_camp_detail": {
+        "camp_address": "SHIYAS",
+        "camp_city": "DUBAI A1 S1",
+        "camp_name": "SHIYAS CAMP",
+        "client_id": "66fa6d9ecb6823b6ba871ef7",
+        "id": "66fa8aac30541af749baf67d"
+    },
+    "order_number": "6194401937063709",
+    "order_status": 1,
+    "package_amount": 180,
+    "package_code": "6166107471193256",
+    "package_expiry_date": "2025-01-23T13:25:45.004Z",
+    "package_id": "66fa929f30541af749baf738",
+    "package_name": "Starter 30 Days - 100Mpbs",
+    "package_speed": "100 Mbps",
+    "package_start_date": "2024-12-24T13:25:45.004Z",
+    "package_type": "fixed_duration",
+    "payable_amount": 180,
+    "purchase_date": "2024-12-24T13:25:45.004Z",
+    "sub_total": 180,
+    "tax_amount": 0,
+    "updatedAt": "2024-12-24T13:25:45.005Z",
+    "upload_bandwidth": 100,
+    "user": {
+        "id": "66fea2dcb5967cccda6484c8",
+        "name": "Muhammed Shiyas",
+        "phone": "547626241",
+        "uuid": "8467666939680786"
+    },
+    "user_id": "66fea2dcb5967cccda6484c8",
+    "volume": 100
+}

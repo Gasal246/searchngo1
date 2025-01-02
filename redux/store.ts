@@ -3,7 +3,8 @@ import languageReducer from './slices/languageSlice';
 import verificationReducer from './slices/verificationSlice';
 import authenticationReducer from './slices/appAuthenticationSlice';
 import remoteModalReducer from './slices/remoteModalSlice';
-import networkDataReducer from './slices/NetworkSlice'
+import networkDataReducer from './slices/NetworkSlice';
+import membershipDataReducer from './slices/membershipDetails';
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     verification: verificationReducer,
     authentication: authenticationReducer,
     remoteModals: remoteModalReducer,
-    networkData: networkDataReducer
+    networkData: networkDataReducer,
+    membership: membershipDataReducer
   },
 });
 

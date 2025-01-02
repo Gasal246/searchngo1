@@ -92,7 +92,7 @@ const SideBar = () => {
                       <Text style={styles.link_text}>{translations[language].available_membership}</Text>
                       {orientation === 'right' && <AntDesign name="contacts" size={22} color="black" />}
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]}>
+                    <TouchableOpacity style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]} onPress={() => handleNavigation('MembershipHistory')}>
                       {orientation == 'left' && <MaterialIcons name="history" size={22} color="black" />}
                       <Text style={styles.link_text}>{translations[language].membership_history}</Text>
                       {orientation == 'right' && <MaterialIcons name="history" size={22} color="black" />}

@@ -13,6 +13,7 @@ import { getIpAddress, setIpAddress } from '../../lib/constants/appConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setVerificationState } from '../../redux/slices/verificationSlice';
 import { loadLoadingModal } from '../../redux/slices/remoteModalSlice';
+import { currentApi } from '../../lib/constants/constatntUrls';
 
 const MobileVerification = () => {
     const [via, setVia] = useState<'phone' | 'email'>('phone');

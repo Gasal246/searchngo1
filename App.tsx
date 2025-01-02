@@ -9,7 +9,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './root/screens/HomeScreen';
 
-import { Provider, useDispatch } from 'react-redux';
+import { Provider } from 'react-redux';
 import { store } from './redux/store';
 import MobileVerification from './root/screens/MobileVerification';
 import UpdateProfile from './root/screens/UpdateProfile';
@@ -27,7 +27,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { setIpAddress } from './lib/constants/appConstants';
 import { getVerifiedData } from './helpers/UserHelper';
 import LoaderSpin from './components/shared/LoaderSpin';
-import AvailableMembership from './root/screens/AvailableMembership';
+import AvailableMembership from './root/screens/Membership/AvailableMembership';
+import MembershipHistory from './root/screens/Membership/MembershipHistory';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -126,6 +127,7 @@ export default function App() {
       {showSplashScreen ? <SplashScreen /> :
         <TanstackProvider>
           <SafeAreaView style={{ backgroundColor: "#222831", width: "100%", height: "100%" }}>
+            <Toast config={toastConfig} />
             <LoaderSpin />
             <StatusBar barStyle="light-content" backgroundColor="#222831" />
             <NavigationContainer>
@@ -134,6 +136,9 @@ export default function App() {
                   backgroundColor: "#222831"
                 }
               }}>
+                <Stack.Screen name="MembershipHistory" component={MembershipHistory} options={{
+                  headerShown: false,
+                }} />
                 <Stack.Screen name="AvailableMembership" component={AvailableMembership} options={{
                   headerShown: false,
                 }} />
@@ -163,7 +168,6 @@ export default function App() {
                 }} />
               </Stack.Navigator>
             </NavigationContainer>
-            <Toast config={toastConfig} />
           </SafeAreaView>
         </TanstackProvider>}
     </Provider>

@@ -17,6 +17,15 @@ export const formatBearerToken = (token: string) => {
 export const requestLocationPermission = async () => {
     try {
         if (Platform.OS === 'android') {
+            const alreadyGranted = await PermissionsAndroid.check(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+            );
+
+            if (alreadyGranted) {
+                return true; // Permission is already granted
+            }
+
+            // Request permission if not already granted
             const granted = await PermissionsAndroid.request(
                 PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
                 {
@@ -29,7 +38,7 @@ export const requestLocationPermission = async () => {
             );
             return granted === PermissionsAndroid.RESULTS.GRANTED;
         }
-        return true;
+        return true; // iOS or other platforms where permission is not required
     } catch (err) {
         console.warn(err);
         return false;

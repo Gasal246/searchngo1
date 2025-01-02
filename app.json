@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "searchngo1",
-    "slug": "searchngo1",
+    "name": "searchngo",
+    "slug": "searchngo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -9,19 +9,30 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "LOCATION"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.gasal246.searchngo1"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f44a6597-fda6-4f4d-9f2b-82b4bae7b462"
+      }
     }
   }
 }

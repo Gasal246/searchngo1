@@ -23,7 +23,8 @@ const networkDataState = createSlice({
         }
     },
     extraReducers: (builder) => { 
-        builder.addCase(fetchLocationData.fulfilled, (state, action) => { 
+        builder.addCase(fetchLocationData.fulfilled, (state, action) => {
+            // console.log(action.payload);
             state.location_info = action.payload;
         });
     }
@@ -33,7 +34,6 @@ export const fetchLocationData = createAsyncThunk(
     'networkData/fetchLocationData', 
     async (ssid: string) => {
         const response = await fetchLocation(ssid);
-        console.log(response);
         return response;
     }
 );

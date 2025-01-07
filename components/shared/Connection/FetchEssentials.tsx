@@ -12,6 +12,7 @@ import { useValidateCamp } from '../../../query/camp/queries';
 import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
 import { useGetUserMembershipDetails } from '../../../query/membership/queries';
 import { fetchUserCurrentMembership } from '../../../redux/slices/membershipDetails';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FetchEssentials = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -111,6 +112,7 @@ const FetchEssentials = () => {
             });
             if (!response?.data) throw new Error("[VALIDATE CAMP] Response Data Not Found");
             dispatch(loadUserData(JSON.stringify(response.data.user_data)));
+            await AsyncStorage.setItem('user_data', JSON.stringify(response.data.user_data))
             dispatch(loadToken(response.data.token));
             await dispatch(fetchUserCurrentMembership(response.data.token));
         } catch (error) {

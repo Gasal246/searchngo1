@@ -65,7 +65,7 @@ const MembershipViewDialogue = ({ children, details }: { children: React.ReactNo
                                             <Text style={styles.package_plan_name}>{details?.package_name}</Text>
                                             <View style={styles.package_membership_view}>
                                                 <Text style={{ fontSize: 16, fontWeight: '600', color: 'white' }}>Membership Charge</Text>
-                                                <Text style={styles.package_membership_charge_text}>{details?.package_amount} AED</Text>
+                                                <Text style={styles.package_membership_charge_text}>{details?.package_amount} {details?.client_data?.currency_code}</Text>
                                             </View>
                                         </LinearGradient>
                                         <View style={styles.package_detail_wrapper}>

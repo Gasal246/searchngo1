@@ -9,11 +9,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loadConnectionModal, loadQRModal } from '../../redux/slices/remoteModalSlice';
 import ConnectionQR from '../../components/shared/Connection/ConnectionQR';
 import { AppDispatch, RootState } from '../../redux/store';
-import { fetchLocationData, storeSSID } from '../../redux/slices/NetworkSlice';
-import NetInfo from '@react-native-community/netinfo'
-import Toast from 'react-native-toast-message';
-import { useValidateCamp } from '../../query/camp/queries';
-import { loadToken, loadUserData } from '../../redux/slices/appAuthenticationSlice';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useDispatch<AppDispatch>();

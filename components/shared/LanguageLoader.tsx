@@ -20,7 +20,9 @@ const LanguageLoader = () => {
         const data = JSON.parse(response)
         dispatch(loadUserData(JSON.stringify(data.user_data)));
         dispatch(loadToken(data.token));
-        dispatch(loadAuthentication(true))
+        dispatch(loadAuthentication(true));
+        await AsyncStorage.setItem('user_data', JSON.stringify(data.user_data));
+        await AsyncStorage.setItem('user_token', data.token)
       }
     }
     loadPersistedLanguage();

@@ -1,26 +1,81 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
 import GradientButtonOne from '../../components/shared/GradientButtonOne';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { translations } from '../../lib/translations';
 import { RootState } from '../../redux/store';
 import CameraModal from '../../components/shared/CameraModal';
+import { formatBearerToken, splitString } from '../../lib/utils';
+import Toast from 'react-native-toast-message';
+import { loadToken, loadUserData } from '../../redux/slices/appAuthenticationSlice';
+import axios from 'axios';
+import { apiPrefix, currentApi, profilePrefix } from '../../lib/constants/constatntUrls';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { splitString } from '../../lib/utils';
+// import FormData from 'form-data';
 
 const UpdateProfile = () => {
     const navigation = useNavigation<NavigationProp>();
     const language = useSelector((state: RootState) => state.language.language);
-    const userData = useSelector((state: RootState) => state.authentication.user_data);
+    const { user_data: userData, token: authToken } = useSelector((state: RootState) => state.authentication);
     const [fullName, setFullName] = useState<string>(userData?.name);
-    const [imageUrl, setImageUrl] = useState<any>('');
+    const [imageUrl, setImageUrl] = useState<any>();
+    const [imageError, setImageError] = useState(false);
+    const dispatch = useDispatch();
 
     const handleNameOnChange = (text: string) => {
         setFullName(text)
     }
-    
+
+    useEffect(() => {
+        const image = `${profilePrefix(userData?.id)}?t=${new Date()}`
+        if (image) {
+            setImageUrl(`${profilePrefix(userData?.id)}?t=${new Date()}`);
+            setImageError(false)
+        } else {
+            setImageError(true)
+        }
+    }, [])
+
+    const handleUpdateProfile = async () => {
+        try {
+            const formData = new FormData();
+            if (imageUrl) {
+                formData.append('photo', {
+                    name: 'profileimage.jpg',
+                    type: 'image/jpeg',
+                    uri: imageUrl
+                } as any);
+            }
+            formData.append("username", fullName);
+            const { data: response } = await axios.post(currentApi + apiPrefix + `/users/update-profile?name=${fullName}`, formData, {
+                headers: {
+                    Authorization: formatBearerToken(authToken!),
+                    "Content-Type": 'multipart/form-data'
+                }
+            })
+            if (response?.error) {
+                return Toast.show({
+                    type: 'error',
+                    text1: 'Something went wrong',
+                    text2: "Your image hasn't uploaded."
+                });
+            }
+
+            if (response?.data) {
+                dispatch(loadToken(response?.data?.token));
+                dispatch(loadUserData(JSON.stringify(response?.data?.user_data)));
+                await AsyncStorage.setItem('user_data', JSON.stringify(response?.data?.user_data));
+                await AsyncStorage.setItem('user_token', response?.data?.token);
+                navigation.replace('Services');
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     return (
         <View>
             <View style={styles.center_logo}>
@@ -34,11 +89,11 @@ const UpdateProfile = () => {
                 <View style={styles.form_view}>
                     <CameraModal
                         setImageUri={setImageUrl}>
-                        {imageUrl ? (
+                        {!imageError ? (
                             <Image source={{ uri: imageUrl }} style={styles.previewImage} />
                         ) : (
                             <View style={styles.camera_view}>
-                                <FontAwesome name='camera' size={60} color='gray' />
+                                <FontAwesome name="camera" size={60} color="gray" />
                             </View>
                         )}
                     </CameraModal>
@@ -50,7 +105,7 @@ const UpdateProfile = () => {
                             onChangeText={handleNameOnChange}
                         />
                     </View>
-                    <GradientButtonOne colors={["#4EFBE6", "#5AE7A6"]} style={{ borderRadius: 10, width: "100%", marginBottom: 10 }} onPress={() => navigation.replace("Services")}>
+                    <GradientButtonOne colors={["#4EFBE6", "#5AE7A6"]} style={{ borderRadius: 10, width: "100%", marginBottom: 10 }} onPress={handleUpdateProfile}>
                         <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                             <Text style={styles.textSubmit}>{translations[language].update_pf_submit} </Text>
                             <FontAwesome name="arrow-right" size={20} color="white" />

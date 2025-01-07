@@ -87,7 +87,7 @@ const AvailableMembership = () => {
                     <Text style={styles.package_plan_name}>{plan?.package_name}</Text>
                     <View style={styles.package_membership_view}>
                       <Text style={styles.package_membership_charge_text}>Membership Charges</Text>
-                      <Text style={styles.package_plan_price}>{plan?.package_price} AED</Text>
+                      <Text style={styles.package_plan_price}>{plan?.package_price} {plan?.currency_code}</Text>
                     </View>
                   </LinearGradient>
                   <View style={styles.package_detail_wrapper}>

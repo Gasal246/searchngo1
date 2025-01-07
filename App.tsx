@@ -29,6 +29,7 @@ import { getVerifiedData } from './helpers/UserHelper';
 import LoaderSpin from './components/shared/LoaderSpin';
 import AvailableMembership from './root/screens/Membership/AvailableMembership';
 import MembershipHistory from './root/screens/Membership/MembershipHistory';
+import WaterPlus from './root/screens/Services/WaterPlus';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -140,6 +141,9 @@ export default function App() {
                   headerShown: false,
                 }} />
                 <Stack.Screen name="AvailableMembership" component={AvailableMembership} options={{
+                  headerShown: false,
+                }} />
+                <Stack.Screen name="WaterPlus" component={WaterPlus} options={{
                   headerShown: false,
                 }} />
                 <Stack.Screen name="Wallet" component={WalletScreen} options={{

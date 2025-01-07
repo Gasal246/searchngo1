@@ -75,10 +75,12 @@ const OTPpage = () => {
             const res = await verifyOtp(formData);
             console.log(res);
             if (res?.status === 201) {
-                await AsyncStorage.setItem('verification', JSON.stringify(res.data))
+                await AsyncStorage.setItem('verification', JSON.stringify({ auth: true }))
                 dispatch(loadAuthentication(true));
                 dispatch(loadUserData(JSON.stringify(res?.data?.user_data)));
+                await AsyncStorage.setItem('user_data', JSON.stringify(res?.data?.user_data));
                 dispatch(loadToken(res?.data?.token));
+                await AsyncStorage.setItem('user_token', res.data?.token);
                 dispatch(loadLoadingModal(false))
                 Toast.show({
                     type: "success",

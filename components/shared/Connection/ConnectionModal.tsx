@@ -7,10 +7,6 @@ import GradientButtonOne from '../GradientButtonOne';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { loadConnectionModal } from '../../../redux/slices/remoteModalSlice';
-import Toast from 'react-native-toast-message';
-import { useValidateCamp } from '../../../query/camp/queries';
-import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
-import { fetchLocationData } from '../../../redux/slices/NetworkSlice';
 
 const ConnectionModal = () => {
     const modalVisible = useSelector((state: RootState) => state.remoteModals.connectionModal);

@@ -7,3 +7,10 @@ export const axiosInstance = axios.create({
         'Content-Type': 'application/json',
     },
 });
+
+export const axiosInstanceOnImageUpload = axios.create({
+    baseURL: currentApi + apiPrefix,
+    headers: {
+        'Content-Type': 'multipart/form-data'
+    },
+});

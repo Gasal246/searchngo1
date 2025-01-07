@@ -11,4 +11,5 @@ declare type RootStackParamList = {
   Wallet: undefined;
   AvailableMembership: undefined;
   MembershipHistory: undefined;
+  WaterPlus: undefined;
 };

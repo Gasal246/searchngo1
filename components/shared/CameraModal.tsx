@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import Entypo from '@expo/vector-icons/Entypo';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Button, Image, } from "react-native";
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions, CameraViewRef } from 'expo-camera';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { translations } from "../../lib/translations";
@@ -46,7 +46,10 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
     async function takePicture() {
         if (cameraRef.current && cameraReady) {
             try {
-                const picture = await cameraRef.current.takePictureAsync();
+                const picture = await cameraRef.current.takePictureAsync({
+                    skipProcessing: true,
+                    quality: 0,
+                });
                 setImage(picture.uri as string);
             } catch (error) {
                 console.error("Error capturing image:", error);
@@ -116,10 +119,16 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
                             </View>
                         ) : (
                             <View style={styles.cameraContainer}>
-                                <CameraView ref={cameraRef} style={styles.cameraView} facing={facing} onCameraReady={handleCameraReady} zoom={3}>
-                                    <View>
-                                        <TouchableOpacity onPress={toggleCameraFacing}></TouchableOpacity>
-                                    </View>
+                                <CameraView
+                                    ref={cameraRef}
+                                    style={styles.cameraView}
+                                    facing={'front'}
+                                    onCameraReady={handleCameraReady}
+                                    autofocus="on"
+                                    mode="picture"
+                                    mirror={false}
+                                >
+                                    <Image source={require('../../assets/images/png/FaceMask.png')} style={{ width: '100%', height: '100%', aspectRatio: 3 / 4}} />
                                 </CameraView>
                                 <View style={styles.camButtons}>
                                     <TouchableOpacity style={styles.captureWrapper} onPress={takePicture}>
@@ -188,6 +197,17 @@ const styles = StyleSheet.create({
         width: "98%",
         height: 'auto',
         aspectRatio: 3 / 4
+    },
+    faceCircleOverlay: {
+        position: 'absolute',
+        width: 200, // Adjust based on desired size
+        height: 200, // Adjust based on desired size
+        borderRadius: 100, // Half of width/height for perfect circle
+        borderWidth: 2, // Thickness of the circle outline
+        borderColor: 'white', // Color of the outline
+        alignSelf: 'center', // Center horizontally
+        top: '30%', // Adjust to position vertically (percentage relative to camera view height)
+        zIndex: 10, // Ensure it appears above the camera view
     },
     captureWrapper: {
         width: 100,

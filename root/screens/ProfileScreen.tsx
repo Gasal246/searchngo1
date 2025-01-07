@@ -5,10 +5,13 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { translations } from '../../lib/translations';
 import RootLayout from '../layouts/RootLayout';
+import { RootState } from '../../redux/store';
+import { splitString } from '../../lib/utils';
 
 const ProfileScreen = () => {
     const navigation = useNavigation<NavigationProp>();
-    const language = useSelector((state: any) => state.language.language);
+    const language = useSelector((state: RootState) => state.language.language);
+    const { user_data: userData } = useSelector((state: RootState) => state.authentication);
 
     return (
         <RootLayout>
@@ -17,7 +20,7 @@ const ProfileScreen = () => {
                     <TouchableOpacity style={styles.absolute_flex_view} onPress={() => navigation.navigate("Wallet")}>
                         <View>
                             <Text style={styles.absolute_title}>{translations[language].pf_yourid}</Text>
-                            <Text style={styles.userid}>1986 2568 9569 5263</Text>
+                            <Text style={styles.userid}>{splitString(userData?.uuid, 4)}</Text>
 
                             <Text style={styles.absolute_title}>{translations[language].pf_membership}</Text>
                             <Text style={styles.userid}>Silver 30 Days</Text>
@@ -34,14 +37,14 @@ const ProfileScreen = () => {
                     <View style={styles.body_flex_view}>
                         <FontAwesome name="user-circle-o" color="#51E8BF" size={80} />
                         <View style={{ width: "70%" }}>
-                            <Text style={styles.body_title}>Muhammed Shiyas</Text>
+                            <Text style={styles.body_title}>{userData?.name}</Text>
                             <View style={{ ...styles.body_obj_text_flex, flexDirection: language === 'arabic' || language === 'urdu' ? 'row-reverse' : 'row' }}>
                                 <Text style={styles.body_key}>{translations[language].pf_nationality} :</Text>
                                 <Text style={styles.body_value}>Indian</Text>
                             </View>
                             <View style={{ ...styles.body_obj_text_flex, flexDirection: language === 'arabic' || language === 'urdu' ? 'row-reverse' : 'row' }}>
                                 <Text style={styles.body_key}>{translations[language].pf_contact} :</Text>
-                                <Text style={styles.body_value}>0547626241</Text>
+                                <Text style={styles.body_value}>{"+" + userData?.country_code + " " + userData?.phone}</Text>
                             </View>
                             <View style={{ ...styles.body_obj_text_flex, flexDirection: language === 'arabic' || language === 'urdu' ? 'row-reverse' : 'row' }}>
                                 <Text style={styles.body_key}>{translations[language].pf_blood} :</Text>

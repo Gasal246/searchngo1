@@ -41,8 +41,8 @@ const MembershipHistory = () => {
             if (response?.data?.list) {
                 const list = response?.data?.list
                 setMembershipDetails(list?.filter((order: any) => order.order_status == 1))
-                setUpcomingMembershipDetails(list?.filter((order: any) => order.order_status == 2))
-                setExpireMembershipDetails(list?.filter((order: any) => order.order_status == 3))
+                setUpcomingMembershipDetails(list?.filter((order: any) => order.order_status == 3))
+                setExpireMembershipDetails(list?.filter((order: any) => order.order_status == 2))
             }
         } catch (error) {
             console.log(error); // incase any errors

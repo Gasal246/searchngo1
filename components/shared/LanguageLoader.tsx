@@ -15,14 +15,12 @@ const LanguageLoader = () => {
       }
     };
     const loadAuthState = async () => {
-      const response = await AsyncStorage.getItem('verification');
-      if(response){
-        const data = JSON.parse(response)
-        dispatch(loadUserData(JSON.stringify(data.user_data)));
-        dispatch(loadToken(data.token));
+      const user_data = await AsyncStorage.getItem('user_data');
+      const token = await AsyncStorage.getItem('user_token')
+      if(user_data && token){
+        dispatch(loadUserData(user_data));
+        dispatch(loadToken(token));
         dispatch(loadAuthentication(true));
-        await AsyncStorage.setItem('user_data', JSON.stringify(data.user_data));
-        await AsyncStorage.setItem('user_token', data.token)
       }
     }
     loadPersistedLanguage();

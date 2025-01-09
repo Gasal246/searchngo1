@@ -7,18 +7,22 @@ import { useGetCampInternetPackages } from '../../../query/camp/queries';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
+import { usePurchaseNewMembership } from '../../../query/membership/queries';
+import Toast from 'react-native-toast-message';
+import { refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 
 const AvailableMembership = () => {
   const dispatch = useDispatch<AppDispatch>();
   const token = useSelector((state: RootState) => state.authentication.token);
+  const { upcomingMembership } = useSelector((state: RootState) => state.membership)
   const { mutateAsync: getInternetPackages, isPending: pendingInternetPackages } = useGetCampInternetPackages();
+  const { mutateAsync: purchaseMembership, isPending: purchasingMemebership } = usePurchaseNewMembership();
   const [packages, setPackages] = useState<any[]>([]);
 
-  const [selectedPlan, setSelectedPlan] = useState<any>()
-
   useEffect(() => {
+    // console.log(token)
     if (!token) return;
-    // console.log("Rerendering App") 
+    console.log("Token :", token)
     const fetchInternetPackages = async () => {
       try {
         dispatch(loadLoadingModal(true));
@@ -32,41 +36,53 @@ const AvailableMembership = () => {
     };
 
     fetchInternetPackages();
-  }, []);
+  }, [token]);
 
-  const handlePurchaseClick = async (pid: string) => {
-    const planIdx = packages.findIndex((pkg: any) => pkg?.package_id == pid);
-    setSelectedPlan(packages[planIdx]);
-  }
-
-  useEffect(() => {
-    if (selectedPlan) {
+  const handlePurchaseClick = async (plan: any) => {
+    if (upcomingMembership) {
+      Alert.alert("Already Have an Upcoming Plan", "make sure you don't have an upcoming membership plan before purchasing new one.")
+    } else {
       Alert.alert(
         "Confirm Purchase",
-        `You Are Purchasing ${selectedPlan?.package_name}, for ${selectedPlan?.package_price} AED`,
+        `You Are Purchasing ${plan?.package_name}, for ${plan?.package_price + " " + plan?.currency_code}`,
         [
           {
             text: "Continue",
             onPress: () => {
-              // action to do in confirmation
+              handlePurchaseInternetPackage(plan?.package_id)
             }
           },
           {
             text: "Discard",
             style: "cancel",
-            onPress: () => {
-              // action to do in cancelling
-              setSelectedPlan(null)
-            }
+            onPress: () => { }
           }
         ],
         { cancelable: false }
       );
     }
-  }, [selectedPlan])
+  }
 
-  const handlePurchaseInternetPackage = async () => {
-
+  const handlePurchaseInternetPackage = async (packageId: string) => {
+    dispatch(loadLoadingModal(true))
+    try {
+      const response = await purchaseMembership({ payload: { package_id: packageId }, token: token! });
+      await dispatch(refetchUserMembershipDetails(token!));
+      console.log(response)
+      if (response?.status == 200) {
+        return Toast.show({
+          type: "success",
+          text1: "1 Package Added",
+          text2: "new membership package added."
+        })
+      } else {
+        console.log(response)
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(loadLoadingModal(false))
+    }
   }
 
   return (
@@ -106,7 +122,7 @@ const AvailableMembership = () => {
                   </View>
                 </View>
                 <View style={styles.purchase_btn_wrapper}>
-                  <GradientButtonOne onPress={() => handlePurchaseClick(plan?.package_id)} style={styles.purchase_btn} colors={["#51F3E0", "#5AE7A5"]}>
+                  <GradientButtonOne onPress={() => handlePurchaseClick(plan)} style={styles.purchase_btn} colors={["#51F3E0", "#5AE7A5"]}>
                     <Text style={styles.purchaseText}>Purchase</Text>
                   </GradientButtonOne>
                 </View>

@@ -9,7 +9,7 @@ const ServicesScreen = () => {
 
     return (
         <RootLayout>
-            <FetchEssentials />
+            {/* <FetchEssentials /> */}
             <View style={styles.grid_view_fixed}>
                 <View style={styles.title_area}>
                     <Text style={styles.title_text}>Sevices at your finger tips</Text>

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loadConnectionModal, loadQRModal } from '../../redux/slices/remoteModalSlice';
 import ConnectionQR from '../../components/shared/Connection/ConnectionQR';
 import { AppDispatch, RootState } from '../../redux/store';
+import FetchEssentials from '../../components/shared/Connection/FetchEssentials';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useDispatch<AppDispatch>();
@@ -23,6 +24,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
             <ConnectionModal />
             <ConnectionQR />
             <View style={styles.topbar_flex_container}>
+                <FetchEssentials />
                 <SideBar />
                 <View style={styles.center_logo}>
                     <Image source={require("../../assets/images/png/sngcolor.png")} style={{ width: 60, height: 70, objectFit: "contain" }} />

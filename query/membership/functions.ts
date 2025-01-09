@@ -16,3 +16,16 @@ export async function getUserMembershipDetails ( token: string, status?: order_s
     }
 }
 
+export async function purchaseNewMembership ( payload: any, token: string ) {
+    try {
+        const res = await axiosInstance.post(`/users/internet-package/place-order`, payload, {
+            headers: {
+                Authorization: formatBearerToken(token)
+            }
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+

@@ -128,11 +128,10 @@ export default function App() {
       {showSplashScreen ? <SplashScreen /> :
         <TanstackProvider>
           <SafeAreaView style={{ backgroundColor: "#222831", width: "100%", height: "100%" }}>
-            <Toast config={toastConfig} />
             <LoaderSpin />
             <StatusBar barStyle="light-content" backgroundColor="#222831" />
             <NavigationContainer>
-              <Stack.Navigator initialRouteName={userData?.token ? "Services" : "Language"} screenOptions={{
+              <Stack.Navigator initialRouteName={userData?.id ? "Services" : "Language"} screenOptions={{
                 contentStyle: {
                   backgroundColor: "#222831"
                 }
@@ -171,6 +170,7 @@ export default function App() {
                   headerShown: false,
                 }} />
               </Stack.Navigator>
+                <Toast config={toastConfig} />
             </NavigationContainer>
           </SafeAreaView>
         </TanstackProvider>}

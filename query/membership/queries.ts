@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUserMembershipDetails } from "./functions";
+import { getUserMembershipDetails, purchaseNewMembership } from "./functions";
 
-type order_status = '0' | '1' | '2' | '3'
+export type order_status = '0' | '1' | '2' | '3'
 
 export const useGetUserMembershipDetails = () => {
     return useMutation({
@@ -9,4 +9,8 @@ export const useGetUserMembershipDetails = () => {
     })
 }
 
-
+export const usePurchaseNewMembership = () => {
+    return useMutation({
+        mutationFn: async ({ payload, token }: { payload: any, token: string }) => purchaseNewMembership(payload, token)
+    })
+}

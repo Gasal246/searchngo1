@@ -8,3 +8,4 @@ export const getVerifiedData = async () => {
         console.log(error)
     }
 }
+

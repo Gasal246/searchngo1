@@ -22,11 +22,9 @@ const authenticationSlice = createSlice({
         },
         loadUserData: (state, action: PayloadAction<string>) => {
             state.user_data = JSON.parse(action.payload);
-            AsyncStorage.setItem('user_data', action.payload);
         },
         loadToken: (state, action:PayloadAction<string>) => {
             state.token = action.payload;
-            AsyncStorage.setItem('user_token', action.payload)
         },
         loadLogoutApp: (state) => {
             state.isAuthenticated = false

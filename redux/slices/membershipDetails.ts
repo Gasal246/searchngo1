@@ -27,6 +27,11 @@ const membershipDataState = createSlice({
     extraReducers: (builder) => {
         builder.addCase(fetchUserCurrentMembership.fulfilled, (state, action) => {
             state.currentMemebership = action.payload;
+        }),
+        builder.addCase(refetchUserMembershipDetails.fulfilled, (state, action: PayloadAction<any>) => {
+            state.currentMemebership = action.payload?.filter((order: any) => order.order_status == 1);
+            state.expiredMembership = action.payload?.filter((order: any) => order.order_status == 2) || null;
+            state.upcomingMembership = action.payload?.filter((order: any) => order.order_status == 3) || null;
         })
     }
 })
@@ -38,6 +43,17 @@ export const fetchUserCurrentMembership = createAsyncThunk(
         console.log("Membership Data Fetched");
         await AsyncStorage.setItem('current_membership', JSON.stringify(response?.data?.list[0]))
         return response?.data?.list[0];
+    }
+)
+
+export const refetchUserMembershipDetails = createAsyncThunk(
+    'membership/refetchUserMembershipDetails',
+    async (token: string) => {
+        const response = await getUserMembershipDetails(token);
+        console.log('[membership/refetchUserMembershipDetails] user membership data fetched');
+        await AsyncStorage.setItem('membership_data', JSON.stringify(response?.data?.list));
+        console.log(response)
+        return response?.data?.list;
     }
 )
 

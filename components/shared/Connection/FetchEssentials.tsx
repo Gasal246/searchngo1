@@ -10,8 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { loadConnectionModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { useValidateCamp } from '../../../query/camp/queries';
 import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
-import { useGetUserMembershipDetails } from '../../../query/membership/queries';
-import { fetchUserCurrentMembership } from '../../../redux/slices/membershipDetails';
+import { fetchUserCurrentMembership, refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FetchEssentials = () => {
@@ -19,7 +18,6 @@ const FetchEssentials = () => {
     const navigation = useNavigation<any>();
     const [hasInitialized, setHasInitialized] = useState(false); // Prevent multiple executions
     const { location_info: locationData, ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
-    const { mutateAsync: fetchMembershipDetails, isPending: fetchingMembershipDetails } = useGetUserMembershipDetails();
     const { token: authToken } = useSelector((state: RootState) => state.authentication);
     const { mutateAsync: validateCamp } = useValidateCamp();
     let locationInformation: any = undefined;
@@ -67,6 +65,7 @@ const FetchEssentials = () => {
             const ssId = wifiState?.details?.ssid?.toUpperCase();
 
             if (ssId?.split('_')[0] !== 'SG') {
+                locationInformation = null;
                 throw new Error('network failure', { cause: 'network failure' });
             }
 
@@ -75,7 +74,7 @@ const FetchEssentials = () => {
             dispatch(storeSSID(ssId));
             if (ssId.split('_')[0] === 'SG') {
                 dispatch(loadLoadingModal(true));
-                if (!locationData) {
+                if (!locationInformation) {
                     const data = await dispatch(fetchLocationData(ssId));
                     let string = JSON.stringify(data.payload);
                     let obj = JSON.parse(string);
@@ -90,38 +89,40 @@ const FetchEssentials = () => {
     );
 
     const handleValidateCampFunction = useCallback(async () => {
-        // console.log("Hello Camp Validation")
-        if (!locationData && currentSSID?.split('_')[0] === 'SG') {
+        // console.log("Hello Camp Validation");
+        if (!locationInformation && currentSSID?.split('_')[0] === 'SG') {
             dispatch(loadLoadingModal(true));
             await dispatch(fetchLocationData(currentSSID));
             dispatch(loadLoadingModal(false));
         }
 
         if (!authToken) {
-            showErrorToast('Token Missing', "Can't access your auth token.");
+            console.log("NO AUTH TOKEN")
+            showErrorToast('Token Missing', "Access Denied!");
             return;
         }
 
         try {
             dispatch(loadLoadingModal(true));
-            // console.log(locationInformation, authToken)
+            if(!locationInformation) return;
             const response = await validateCamp({
                 camp_id: locationInformation?.SG?.location_id,
                 client_mac: locationInformation?.SG?.client_mac,
                 token: authToken,
             });
+            // console.log(response)
             if (!response?.data) throw new Error("[VALIDATE CAMP] Response Data Not Found");
             dispatch(loadUserData(JSON.stringify(response.data.user_data)));
             await AsyncStorage.setItem('user_data', JSON.stringify(response.data.user_data))
             dispatch(loadToken(response.data.token));
-            await dispatch(fetchUserCurrentMembership(response.data.token));
+            await dispatch(refetchUserMembershipDetails(response.data.token));
         } catch (error) {
             showErrorToast('Validation Error', 'Failed to validate camp.');
             console.error('Error validating camp:', error);
         } finally {
             dispatch(loadLoadingModal(false));
         }
-    }, [authToken, currentSSID, dispatch, locationData, showErrorToast, validateCamp]);
+    }, [authToken, currentSSID, dispatch, locationInformation, showErrorToast, validateCamp]);
 
     const initialize = useCallback(async () => {
         if (hasInitialized) return; // Prevent re-initialization
@@ -147,7 +148,7 @@ const FetchEssentials = () => {
 
     useEffect(() => {
         initialize();
-    }, [initialize]);
+    }, [initialize, currentSSID]);
 
     return null;
 };

@@ -57,5 +57,5 @@ export const refetchUserMembershipDetails = createAsyncThunk(
     }
 )
 
-export const {} = membershipDataState.actions;
+export const { clearAll } = membershipDataState.actions;
 export default membershipDataState.reducer;

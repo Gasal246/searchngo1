@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { loadConnectionModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { useValidateCamp } from '../../../query/camp/queries';
 import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
-import { fetchUserCurrentMembership, refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
+import { clearAll, fetchUserCurrentMembership, refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FetchEssentials = () => {
@@ -126,6 +126,7 @@ const FetchEssentials = () => {
 
     const initialize = useCallback(async () => {
         if (hasInitialized) return; // Prevent re-initialization
+        dispatch(clearAll());
         setHasInitialized(true);
 
         const unsubscribe = NetInfo.addEventListener(async (state) => {

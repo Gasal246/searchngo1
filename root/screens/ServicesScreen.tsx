@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RootLayout from '../layouts/RootLayout';
 import { useNavigation } from '@react-navigation/native';
-import FetchEssentials from '../../components/shared/Connection/FetchEssentials';
 
 const ServicesScreen = () => {
     const navigation = useNavigation<NavigationProp>();
@@ -15,7 +14,7 @@ const ServicesScreen = () => {
                     <Text style={styles.title_text}>Sevices at your finger tips</Text>
                 </View>
                 <View style={styles.grid_service_view}>
-                    <TouchableOpacity style={styles.service_column} onPress={() => navigation.navigate('UpdateProfile')}>
+                    <TouchableOpacity style={styles.service_column} onPress={() => navigation.navigate('Wallet')}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/Wallet.png')} style={styles.service_icon} />
                         </View>

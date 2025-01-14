@@ -68,7 +68,7 @@ const AvailableMembership = () => {
     try {
       const response = await purchaseMembership({ payload: { package_id: packageId }, token: token! });
       await dispatch(refetchUserMembershipDetails(token!));
-      console.log(response)
+      console.log("Purchased Membership", response)
       if (response?.status == 200) {
         return Toast.show({
           type: "success",

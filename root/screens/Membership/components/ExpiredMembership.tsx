@@ -2,8 +2,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MembershipViewDialogue from '../../../../components/shared/Dialogs/MembershipViewDialogue';
+import { translations } from '../../../../lib/translations';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../redux/store';
 
 const ExpiredMembership = ({ data }: { data: any[] }) => {
+    const language = useSelector((state: RootState) => state.language.language);
+    
     return (
         <View>
             <View style={[styles.plan_view, { opacity: 0.8 }]}>
@@ -22,7 +27,7 @@ const ExpiredMembership = ({ data }: { data: any[] }) => {
                         </View>
                         <MembershipViewDialogue details={details}>
                             <View style={styles.plan_view_btn}>
-                                <Text style={styles.plan_view_btn_text}>VIEW</Text>
+                                <Text style={styles.plan_view_btn_text}>{translations[language].view}</Text>
                             </View>
                         </MembershipViewDialogue>
                     </View>

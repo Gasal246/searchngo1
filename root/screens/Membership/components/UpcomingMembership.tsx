@@ -1,9 +1,13 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import MembershipViewDialogue from '../../../../components/shared/Dialogs/MembershipViewDialogue';
+import { translations } from '../../../../lib/translations';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../redux/store';
 
 const UpcomingMembership = ({ data }: { data: any[] }) => {
+    const language = useSelector((state: RootState) => state.language.language);
 
     return (
         <View>
@@ -14,7 +18,7 @@ const UpcomingMembership = ({ data }: { data: any[] }) => {
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                 >
-                    <Text style={styles.package_plan_name}>Your Upcoming membership</Text>
+                    <Text style={styles.package_plan_name}>{translations[language].upcoming_membership}</Text>
                 </LinearGradient>
                 {data?.map((details: any) => (
                     <View style={styles.plan_row} key={details?.id}>
@@ -23,7 +27,7 @@ const UpcomingMembership = ({ data }: { data: any[] }) => {
                         </View>
                         <MembershipViewDialogue details={details}>
                             <View style={styles.plan_view_btn}>
-                                <Text style={styles.plan_view_btn_text}>VIEW</Text>
+                                <Text style={styles.plan_view_btn_text}>{translations[language].view}</Text>
                             </View>
                         </MembershipViewDialogue>
                     </View>

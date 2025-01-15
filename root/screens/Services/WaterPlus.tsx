@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
-import {
-    StyleSheet,
-    View,
-    Text,
-    FlatList,
-    TouchableOpacity,
-    Image,
-    TouchableHighlight,
-} from 'react-native';
-
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, Text, FlatList, Image, TouchableHighlight, } from 'react-native';
 import RootLayout from '../../layouts/RootLayout';
 import { LinearGradient } from 'expo-linear-gradient';
 import GradientButtonOne from '../../../components/shared/GradientButtonOne';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../redux/store';
+import { fetchUserWallet } from '../../../redux/slices/appAuthenticationSlice';
 
 const WaterPlus = () => {
+    const dispatch = useDispatch<AppDispatch>()
     const [customPlanCount, setCustomPlanCount] = useState(1);
+    const { token } = useSelector((state: RootState) => state.authentication)
+    const { wallet_info } = useSelector((state: RootState) => state.authentication);
+
+    useEffect(() => {
+        if(!wallet_info) {
+            dispatch(fetchUserWallet(token!))
+        }
+    }, [wallet_info])
 
     const waterPlans = [
         { id: '1', title: 'ZERO Sodium', description: '5 Gallon (18.9 L)', bottles: '15 Bottle', price: '100 AED' },
@@ -38,7 +41,7 @@ const WaterPlus = () => {
                     end={{ x: 1, y: 1 }}
                     style={styles.walletBalanceContainer}>
                     <Text style={styles.walletBalanceText}>Wallet Balance</Text>
-                    <Text style={styles.walletBalanceValue}>500 AED</Text>
+                    <Text style={styles.walletBalanceValue}>{wallet_info?.wallet_amount} AED</Text>
                 </LinearGradient>
 
                 {/* Title */}

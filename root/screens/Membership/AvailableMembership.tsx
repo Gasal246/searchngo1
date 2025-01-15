@@ -10,6 +10,7 @@ import { loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { usePurchaseNewMembership } from '../../../query/membership/queries';
 import Toast from 'react-native-toast-message';
 import { refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
+import { fetchUserWallet } from '../../../redux/slices/appAuthenticationSlice';
 
 const AvailableMembership = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -70,6 +71,7 @@ const AvailableMembership = () => {
       await dispatch(refetchUserMembershipDetails(token!));
       console.log("Purchased Membership", response)
       if (response?.status == 200) {
+        dispatch(fetchUserWallet(token!))
         return Toast.show({
           type: "success",
           text1: "1 Package Added",

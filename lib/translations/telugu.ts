@@ -66,4 +66,18 @@ export const telugu = {
     logs: "లాగ్‌లు",
     change_pin: "PIN మార్చండి",
     sign_out: "సైన్ అవుట్ చేయండి",
+    services_title: "మీ వేళ్ల వద్ద సేవలు",
+    deals_title: "మీ కోసం ఆఫర్లు",
+    uuid_qr_title: "సభ్యత్వ వివరాలు",
+    complimentary_internet: "ఉచిత ఇంటర్నెట్",
+    validity: "వాలిడిటీ",
+    availible_services: "లభ్యమైన సేవలు",
+    start_on: "ప్రారంభించు",
+    expire_on: "కాలపూర్ణమవుతుంది",
+    time_left: "సమయం ఉంది",
+    upcoming_membership: "మీ రాబోయే సభ్యత్వం",
+    view: "చూడండి",
+    membership_charge: "సభ్యత్వ ఛార్జి",
+    transactions: "వ్యావహారాలు",
+    balance: "బ్యాలెన్స్"
 }

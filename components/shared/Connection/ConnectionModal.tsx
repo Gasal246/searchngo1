@@ -15,8 +15,14 @@ const ConnectionModal = () => {
     const dispatch = useDispatch<AppDispatch>();
 
     const closeModal = () => dispatch(loadConnectionModal(false));
-    const currentSSID = useSelector((state: RootState) => state.networkData.ssid);
-    const { token: authToken, user_data: userData } = useSelector((state: RootState) => state.authentication);
+    // const currentSSID = useSelector((state: RootState) => state.networkData.ssid);w
+    const { user_data: userData } = useSelector((state: RootState) => state.authentication);
+
+    const { currentMemebership } = useSelector((state: RootState) => state.membership);
+
+    const handleConnectInternet = async () => {
+        
+    }
 
     return (
         <View style={styles.container}>
@@ -36,15 +42,15 @@ const ConnectionModal = () => {
                                 <View style={styles.connectivity_view}>
                                     <Text style={styles.connectivity_text}>{translations[language].home_connectivity}</Text>
                                     <Text style={styles.connectivity_desc}>{translations[language].home_conn_desc}</Text>
-                                    <View style={styles.container}>
+                                    {/* <View style={styles.container}>
                                         <Text style={{ color: 'grey', marginTop: 10}}>SSID: {currentSSID}</Text>
-                                    </View>
+                                    </View> */}
                                     <View style={styles.location_view}>
                                         <Text style={styles.location_title}>{translations[language].home_site_title}</Text>
                                         <Text style={styles.location_desc}>{userData?.location_camp?.location_camp_name || 'Out of service area'}</Text>
                                     </View>
 
-                                    <View style={styles.flex_container}>
+                                    {currentMemebership ? <View style={styles.flex_container}>
                                         <GradientButtonOne
                                             colors={["#8D9092", "#626365"]}
                                             style={{ borderRadius: 10, width: "28%", marginBottom: 10 }}
@@ -65,7 +71,11 @@ const ConnectionModal = () => {
                                                 <FontAwesome name="arrow-right" size={20} color="white" />
                                             </View>
                                         </GradientButtonOne>
+                                    </View> : 
+                                    <View style={styles.not_found_view}>
+                                        <Text style={styles.not_found_text}>No Active Membership Found</Text>
                                     </View>
+                                    }
                                 </View>
                             </View>
                         </TouchableWithoutFeedback>
@@ -163,5 +173,18 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         fontSize: 18,
     },
+    not_found_view: {
+        backgroundColor: '#F35248',
+        width: '100%',
+        padding: 10,
+        alignContent: 'center',
+        borderRadius: 10
+    },
+    not_found_text: {
+        color: 'white',
+        fontSize: 14,
+        fontWeight: 'bold',
+        textAlign: 'center'
+    }
 });
 

@@ -10,8 +10,9 @@ import { useNavigation } from '@react-navigation/native';
 import { loadConnectionModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { useValidateCamp } from '../../../query/camp/queries';
 import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
-import { clearAll, fetchUserCurrentMembership, refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
+import { clearAll, refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useGetWalletInfo } from '../../../query/wallet/query';
 
 const FetchEssentials = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -20,6 +21,7 @@ const FetchEssentials = () => {
     const { location_info: locationData, ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
     const { token: authToken } = useSelector((state: RootState) => state.authentication);
     const { mutateAsync: validateCamp } = useValidateCamp();
+    const { mutateAsync: getWallet, isPending: fetchingWallet } = useGetWalletInfo();
     let locationInformation: any = undefined;
 
     const showErrorToast = useCallback((title: string, message: string) => {
@@ -58,7 +60,6 @@ const FetchEssentials = () => {
 
     const handleNetworkChange = useCallback(
         async (state: any) => {
-            // console.log("Hello Network Change")
             if (!await handleLocationPermission()) return;
 
             const wifiState: any = await NetInfo.fetch('wifi');
@@ -126,7 +127,7 @@ const FetchEssentials = () => {
 
     const initialize = useCallback(async () => {
         if (hasInitialized) return; // Prevent re-initialization
-        dispatch(clearAll());
+        dispatch(clearAll()); // clearing all existing membership details
         setHasInitialized(true);
 
         const unsubscribe = NetInfo.addEventListener(async (state) => {

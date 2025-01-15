@@ -12,6 +12,7 @@ import Toast from 'react-native-toast-message';
 import { loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { calculateValidityDate, formatDateString } from '../../../lib/utilities';
 import TimeCounter from '../../../components/shared/utility/TimeCounter';
+import { translations } from '../../../lib/translations';
 
 type TabTypes = 'current' | 'upcoming' | 'expired';
 
@@ -19,10 +20,11 @@ const MembershipHistory = () => {
     const dispatch = useDispatch<AppDispatch>()
     const token = useSelector((state: RootState) => state.authentication.token);
     const [tab, setTab] = useState<TabTypes>('current');
-    const [membershipDetails, setMembershipDetails] = useState<any[]>([])
-    const [upcomingMembershipDetails, setUpcomingMembershipDetails] = useState<any[]>([])
-    const [expiredMembershipDetails, setExpireMembershipDetails] = useState<any[]>([])
+    const [membershipDetails, setMembershipDetails] = useState<any[]>([]);
+    const [upcomingMembershipDetails, setUpcomingMembershipDetails] = useState<any[]>([]);
+    const [expiredMembershipDetails, setExpireMembershipDetails] = useState<any[]>([]);
     const { mutateAsync: getMembershipDetails, isPending: fetchingMembershipDetails } = useGetUserMembershipDetails();
+    const language = useSelector((state: RootState) => state.language.language);
 
     const handleTabChange = (tab_name: TabTypes) => {
         if (tab_name === tab) return;
@@ -58,30 +60,7 @@ const MembershipHistory = () => {
     return (
         <RootLayout>
             <View style={{ paddingHorizontal: 10, paddingTop: 10, flex: 1, paddingBottom: 20 }}>
-                <Text style={{ backgroundColor: 'white', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10, fontSize: 16, fontWeight: '600', textAlign: 'center', marginBottom: 10 }}>Membership History</Text>
-                {/* <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <GradientButtonOne
-                        colors={tab === 'current' ? ["#00c8a4", "#006e7d"] : ["#8D9092", "#626365"]}
-                        style={{ width: '33.33%', borderTopLeftRadius: 10, borderBottomLeftRadius: 10, borderRadius: 0, }}
-                        onPress={() => handleTabChange('current')}
-                    >
-                        <Text style={{ color: 'white', fontWeight: '600' }}>Current</Text>
-                    </GradientButtonOne>
-                    <GradientButtonOne
-                        colors={tab === 'upcoming' ? ["#00c8a4", "#006e7d"] : ["#8D9092", "#626365"]}
-                        style={{ width: '33.33%', borderRadius: 0 }}
-                        onPress={() => handleTabChange('upcoming')}
-                    >
-                        <Text style={{ color: 'white', fontWeight: '600' }}>Upcoming</Text>
-                    </GradientButtonOne>
-                    <GradientButtonOne
-                        colors={tab === 'expired' ? ["#00c8a4", "#006e7d"] : ["#8D9092", "#626365"]}
-                        style={{ width: '33.33%', borderRadius: 0, borderTopRightRadius: 10, borderBottomRightRadius: 10 }}
-                        onPress={() => handleTabChange('expired')}
-                    >
-                        <Text style={{ color: 'white', fontWeight: '600' }}>Expired</Text>
-                    </GradientButtonOne>
-                </View> */}
+                <Text style={{ backgroundColor: 'white', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10, fontSize: 16, fontWeight: '600', textAlign: 'center', marginBottom: 10 }}>{translations[language].membership_history}</Text>
                 <View style={{ flex: 1, borderRadius: 15, overflow: 'hidden' }}>
                     <ScrollView style={{ flex: 1 }}>
                         {/* CURRENT MEMBERSHIP DETAILS */}
@@ -94,37 +73,37 @@ const MembershipHistory = () => {
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 1 }}
                                     >
-                                        <Text style={styles.package_plan_name}>Current Membership</Text>
+                                        <Text style={styles.package_plan_name}>{translations[language].current_membership}</Text>
                                         <View style={styles.package_membership_view}>
                                             <Text style={styles.package_membership_charge_text}>{details?.package_name}</Text>
                                         </View>
                                     </LinearGradient>
                                     <View style={styles.package_detail_wrapper}>
                                         <View style={styles.package_detail_one}>
-                                            <Text style={styles.package_detail_key}>Complimentary Internet</Text>
+                                            <Text style={styles.package_detail_key}>{translations[language].complimentary_internet}</Text>
                                             <Text style={styles.package_detail_value}>{details?.package_speed}</Text>
                                         </View>
                                         <View style={styles.package_detail_two}>
-                                            <Text style={styles.package_detail_key}>Validity</Text>
+                                            <Text style={styles.package_detail_key}>{translations[language].validity}</Text>
                                             <Text style={styles.package_detail_value}>{calculateValidityDate(details?.package_expiry_date, details?.package_start_date)}</Text>
                                         </View>
                                         <View style={styles.package_detail_three}>
-                                            <Text style={styles.package_detail_key_white}>Available Services</Text>
+                                            <Text style={styles.package_detail_key_white}>{translations[language].availible_services}</Text>
                                             <Text style={styles.package_detail_value_white}>All</Text>
                                         </View>
                                         <View style={styles.package_detail_four}>
-                                            <Text style={styles.package_detail_key_white}>Start on</Text>
+                                            <Text style={styles.package_detail_key_white}>{translations[language].start_on}</Text>
                                             <Text style={styles.package_detail_value_white}>{formatDateString(details?.package_start_date)}</Text>
                                         </View>
                                         <View style={styles.package_detail_five}>
-                                            <Text style={styles.package_detail_key_white}>Will Expire</Text>
+                                            <Text style={styles.package_detail_key_white}>{translations[language].expire_on}</Text>
                                             <Text style={styles.package_detail_value_white}>{formatDateString(details?.package_expiry_date)}</Text>
                                         </View>
                                     </View>
                                 </View>
                                 <View style={styles.purchase_btn_wrapper}>
                                     <View style={styles.purchase_btn}>
-                                        <Text style={{ color: 'white', fontWeight: '500', fontSize: 14 }}>Time Left</Text>
+                                        <Text style={{ color: 'white', fontWeight: '500', fontSize: 14 }}>{translations[language].time_left}</Text>
                                         <TimeCounter textStyle={{ color: 'white', fontWeight: '700', fontSize: 16 }} targetDate={details?.package_expiry_date} />
                                     </View>
                                 </View>

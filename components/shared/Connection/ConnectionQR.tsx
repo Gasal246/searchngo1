@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
-import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { loadQRModal } from '../../../redux/slices/remoteModalSlice';
 import { splitString } from '../../../lib/utils';
 import QRCode from 'react-native-qrcode-svg';
@@ -27,7 +27,7 @@ const ConnectionQR = () => {
                     <View style={styles.modalOverlay}>
                         <View style={{ margin: 10, padding: 10}}>
                             <View style={styles.section_header}>
-                                <Text style={styles.section_title}>Membership Details</Text>
+                                <Text style={styles.section_title}>{translations[language].uuid_qr_title}</Text>
                                 <TouchableOpacity style={styles.closeButton} onPress={() => dispatch(loadQRModal(false))}>
                                     <AntDesign name="close" size={24} color="black" />
                                 </TouchableOpacity>

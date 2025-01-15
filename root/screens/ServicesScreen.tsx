@@ -2,8 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RootLayout from '../layouts/RootLayout';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import { translations } from '../../lib/translations';
 
 const ServicesScreen = () => {
+    const language = useSelector((state: RootState) => state.language.language);
     const navigation = useNavigation<NavigationProp>();
 
     return (
@@ -11,7 +15,7 @@ const ServicesScreen = () => {
             {/* <FetchEssentials /> */}
             <View style={styles.grid_view_fixed}>
                 <View style={styles.title_area}>
-                    <Text style={styles.title_text}>Sevices at your finger tips</Text>
+                    <Text style={styles.title_text}>{translations[language].services_title}</Text>
                 </View>
                 <View style={styles.grid_service_view}>
                     <TouchableOpacity style={styles.service_column} onPress={() => navigation.navigate('Wallet')}>
@@ -65,7 +69,7 @@ const ServicesScreen = () => {
                 </View>
             </View>
             <View style={styles.title_area}>
-                <Text style={styles.title_text}>Deals for you</Text>
+                <Text style={styles.title_text}>{translations[language].deals_title}</Text>
             </View>
             <View style={{ width: '100%', paddingHorizontal: 10, flex: 1 }}>
                 <View style={styles.scrollViewWrapper}>

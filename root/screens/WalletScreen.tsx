@@ -8,12 +8,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AppDispatch, RootState } from '../../redux/store';
 import { loadLoadingModal, loadQRModal } from '../../redux/slices/remoteModalSlice';
 import { useGetWalletInfo, useGetWalletTransactions } from '../../query/wallet/query';
-import Toast from 'react-native-toast-message';
 import { formatDateString } from '../../lib/utilities';
+import { translations } from '../../lib/translations';
+import { fetchUserWallet } from '../../redux/slices/appAuthenticationSlice';
+import Toast from 'react-native-toast-message';
 
 const WalletScreen = () => {
-    const navigation = useNavigation();
-    const language = useSelector((state: any) => state.language.language);
+    const navigation = useNavigation<NavigationProp>();
+    const language = useSelector((state: RootState) => state.language.language);
     const { token } = useSelector((state: RootState) => state.authentication)
     const dispatch = useDispatch<AppDispatch>();
     const [walletInfo, setWalletInfo] = useState<any>();
@@ -34,13 +36,16 @@ const WalletScreen = () => {
     const handleFetchWallet = async (token: string) => {
         try {
             dispatch(loadLoadingModal(true))
-            await getWallet({ token }).then(async (data: any) => {
-                if (data.error) {
-                    throw new Error(data.message)
-                }
-                setWalletInfo(data.data)
-                await handleFetchTransactions(token, data.data._id.toString())
-            });
+            const data: any = await dispatch(fetchUserWallet(token));
+            setWalletInfo(data.payload);
+            if(!data.payload) {
+                navigation.replace('Services');
+                Toast.show({
+                    type: 'info',
+                    text1: 'Cannot Load Wallet!'
+                })
+            }
+            await handleFetchTransactions(token, data.payload._id.toString())
         } catch (error) {
             console.log(error)
         } finally {
@@ -99,7 +104,7 @@ const WalletScreen = () => {
                     <View style={styles.walletCardBottomCircle}></View>
                     <Text style={styles.walletHeading}>{walletInfo?.status == 1 ? 'ACTIVE WALLET' : 'NOT ACTIVE'}</Text>
                     <View style={styles.balanceView}>
-                        <Text style={styles.walletBalanceText}>Balance</Text>
+                        <Text style={styles.walletBalanceText}>{translations[language].balance}</Text>
                         <Text style={styles.walletBalance}>{walletInfo?.wallet_amount} AED</Text>
                     </View>
                     <Text style={styles.walletSubtitle}>{walletInfo?.camp_name}</Text>
@@ -111,7 +116,7 @@ const WalletScreen = () => {
 
                 {/* Transactions Section */}
                 <View style={styles.transactionsContainer}>
-                    <Text style={styles.transactionsHeading}><AntDesign name="retweet" size={20} color="white" />{"  "} Transactions</Text>
+                    <Text style={styles.transactionsHeading}><AntDesign name="retweet" size={20} color="white" />{"  "} {translations[language].transactions}</Text>
                     <Animated.View style={[styles.transactionsList, { transform: [{ translateY: slideAnim }] }]}>
                         {transactions?.length > 0 ?
                             <FlatList
@@ -181,7 +186,8 @@ const styles = StyleSheet.create({
     walletBalanceText: {
         fontSize: 14,
         color: '#005F78',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        textAlign: "left"
     },
     walletSubtitle: {
         fontSize: 18,

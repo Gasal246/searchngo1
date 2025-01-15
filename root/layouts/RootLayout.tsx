@@ -1,23 +1,67 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect } from 'react'
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
 import ConnectionModal from '../../components/shared/Connection/ConnectionModal';
 import SideBar from '../../components/shared/SideBar';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadConnectionModal, loadQRModal } from '../../redux/slices/remoteModalSlice';
+import { loadQRModal } from '../../redux/slices/remoteModalSlice';
 import ConnectionQR from '../../components/shared/Connection/ConnectionQR';
 import { AppDispatch, RootState } from '../../redux/store';
 import FetchEssentials from '../../components/shared/Connection/FetchEssentials';
+import { connectSocket, disconnectSocket, joinChannel, listenToEvent } from '../../socketManager';
+import Toast from 'react-native-toast-message';
+import * as Notifications from 'expo-notifications';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useDispatch<AppDispatch>();
-    const [ssid, setSSID] = useState('');
-    const [isModalShown, setIsModalShown] = useState(false); // this state will control the opening of connection modal only once if the ssid is staring with 'SG'
-    const { ssid: currentSSID, location_info: locationData } = useSelector(
-        (state: RootState) => state.networkData
-    );
+    const { user_data: currentUserData } = useSelector((state: RootState) => state.authentication);
+
+    useEffect(() => {
+        const requestPermissions = async () => {
+            const { status } = await Notifications.requestPermissionsAsync();
+            if (status !== 'granted') {
+                console.error('Notification permissions not granted');
+            }
+        };
+
+        // Configure notification handler
+        Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+                shouldShowAlert: true,
+                shouldPlaySound: true,
+                shouldSetBadge: false,
+            }),
+        });
+
+        const setupNotifications = async () => {
+            await requestPermissions();
+
+            const socket = connectSocket();
+            joinChannel('global');
+            joinChannel(`sng-user-${currentUserData.id}`);
+            listenToEvent('notification', async (data: any) => {
+                console.log('Received notification:', data);
+                await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: 'New Notification',
+                        body: data?.message,
+                    },
+                    trigger: null,
+                });
+                Toast.show({
+                    type: 'info',
+                    text1: data?.message
+                })
+            });
+
+            return () => {
+                disconnectSocket();
+            };
+        };
+
+        setupNotifications();
+    }, []);
 
     return (
         <SafeAreaView style={{ backgroundColor: "#222831", width: "100%", height: "100%" }}>

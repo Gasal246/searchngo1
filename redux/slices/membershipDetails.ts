@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getUserMembershipDetails } from "../../query/membership/functions";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface MembershipDataState {
     currentMemebership: any;
@@ -41,7 +40,6 @@ export const fetchUserCurrentMembership = createAsyncThunk(
     async (token: string) => {
         const response = await getUserMembershipDetails(token, '1');
         console.log("Membership Data Fetched");
-        await AsyncStorage.setItem('current_membership', JSON.stringify(response?.data?.list[0]))
         return response?.data?.list[0];
     }
 )
@@ -51,7 +49,6 @@ export const refetchUserMembershipDetails = createAsyncThunk(
     async (token: string) => {
         const response = await getUserMembershipDetails(token);
         console.log('[membership/refetchUserMembershipDetails] user membership data fetched');
-        await AsyncStorage.setItem('membership_data', JSON.stringify(response?.data?.list));
         console.log(response)
         return response?.data?.list;
     }

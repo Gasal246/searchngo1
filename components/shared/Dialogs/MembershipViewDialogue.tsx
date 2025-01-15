@@ -5,9 +5,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import TimeCounter from '../utility/TimeCounter';
 import { calculateValidityDate, formatDateString } from '../../../lib/utilities';
 import GradientButtonOne from '../GradientButtonOne';
+import { translations } from '../../../lib/translations';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 
 const MembershipViewDialogue = ({ children, details }: { children: React.ReactNode, details: any }) => {
     const [modalVisible, setModalVisible] = useState(false);
+    const language = useSelector((state: RootState) => state.language.language);
 
     const toggleModal = () => {
         setModalVisible(!modalVisible)
@@ -64,29 +68,29 @@ const MembershipViewDialogue = ({ children, details }: { children: React.ReactNo
                                         >
                                             <Text style={styles.package_plan_name}>{details?.package_name}</Text>
                                             <View style={styles.package_membership_view}>
-                                                <Text style={{ fontSize: 16, fontWeight: '600', color: 'white' }}>Membership Charge</Text>
+                                                <Text style={{ fontSize: 16, fontWeight: '600', color: 'white' }}>{translations[language].membership_charge}</Text>
                                                 <Text style={styles.package_membership_charge_text}>{details?.package_amount} {details?.client_data?.currency_code}</Text>
                                             </View>
                                         </LinearGradient>
                                         <View style={styles.package_detail_wrapper}>
                                             <View style={styles.package_detail_one}>
-                                                <Text style={styles.package_detail_key}>Complimentary Internet</Text>
+                                                <Text style={styles.package_detail_key}>{translations[language].complimentary_internet}</Text>
                                                 <Text style={styles.package_detail_value}>{details?.package_speed}</Text>
                                             </View>
                                             <View style={styles.package_detail_two}>
-                                                <Text style={styles.package_detail_key}>Validity</Text>
+                                                <Text style={styles.package_detail_key}>{translations[language].validity}</Text>
                                                 <Text style={styles.package_detail_value}>{calculateValidityDate(details?.package_expiry_date, details?.package_start_date)}</Text>
                                             </View>
                                             <View style={styles.package_detail_three}>
-                                                <Text style={styles.package_detail_key_white}>Available Services</Text>
+                                                <Text style={styles.package_detail_key_white}>{translations[language].availible_services}</Text>
                                                 <Text style={styles.package_detail_value_white}>All</Text>
                                             </View>
                                             <View style={styles.package_detail_four}>
-                                                <Text style={styles.package_detail_key_white}>Start on</Text>
+                                                <Text style={styles.package_detail_key_white}>{translations[language].start_on}</Text>
                                                 <Text style={styles.package_detail_value_white}>{formatDateString(details?.package_start_date)}</Text>
                                             </View>
                                             <View style={styles.package_detail_five}>
-                                                <Text style={styles.package_detail_key_white}>Will Expire</Text>
+                                                <Text style={styles.package_detail_key_white}>{translations[language].expire_on}</Text>
                                                 <Text style={styles.package_detail_value_white}>{formatDateString(details?.package_expiry_date)}</Text>
                                             </View>
                                             {/* {details?.order_status == 2 &&

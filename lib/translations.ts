@@ -93,6 +93,22 @@ type TranslationProps = Record<string, {
     logs: string;
     change_pin: string;
     sign_out: string;
+    //service_page
+    services_title: string;
+    deals_title: string;
+    uuid_qr_title: string;
+    // membership history 
+    complimentary_internet: string;
+    validity: string;
+    availible_services: string;
+    start_on: string;
+    expire_on: string;
+    time_left: string;
+    upcoming_membership: string;
+    view: string;
+    membership_charge: string;
+    transactions: string;
+    balance: string;
 }>
 
 export const translations: TranslationProps = {

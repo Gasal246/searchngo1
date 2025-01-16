@@ -7,6 +7,9 @@ import GradientButtonOne from '../GradientButtonOne';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { loadConnectionModal } from '../../../redux/slices/remoteModalSlice';
+import Toast from 'react-native-toast-message';
+import NetInfo from '@react-native-community/netinfo';
+import { storeSSID } from '../../../redux/slices/NetworkSlice';
 
 const ConnectionModal = () => {
     const modalVisible = useSelector((state: RootState) => state.remoteModals.connectionModal);
@@ -15,12 +18,31 @@ const ConnectionModal = () => {
     const dispatch = useDispatch<AppDispatch>();
 
     const closeModal = () => dispatch(loadConnectionModal(false));
-    // const currentSSID = useSelector((state: RootState) => state.networkData.ssid);w
+    const { ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
     const { user_data: userData } = useSelector((state: RootState) => state.authentication);
 
     const { currentMemebership } = useSelector((state: RootState) => state.membership);
 
     const handleConnectInternet = async () => {
+        if(!currentSSID) {
+            const wifiState: any = await NetInfo.fetch('wifi')
+            const ssId = wifiState?.details?.ssid?.toUpperCase();
+            await dispatch(storeSSID(ssId));
+        }
+        if(currentSSID?.split('_')[0] != 'SG') {
+            return Toast.show({
+                type: "error",
+                text1: "Connect to Camp WIFI",
+                text2: "connect camp wifi to continue this action.",
+            })
+        }
+        if(!currentMemebership) {
+            return Toast.show({
+                type: 'error',
+                text1: 'No Active Membership Found',
+                text2: "please check your membership history."
+            })
+        }
         
     }
 
@@ -72,9 +94,9 @@ const ConnectionModal = () => {
                                             </View>
                                         </GradientButtonOne>
                                     </View> : 
-                                    <View style={styles.not_found_view}>
-                                        <Text style={styles.not_found_text}>No Active Membership Found</Text>
-                                    </View>
+                                    <TouchableOpacity style={styles.not_found_view} onPress={closeModal}>
+                                        <Text style={styles.not_found_text}>Close</Text>
+                                    </TouchableOpacity>
                                     }
                                 </View>
                             </View>

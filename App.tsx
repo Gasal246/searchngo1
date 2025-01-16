@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, StyleSheet } from 'react-native';
+import { Platform, StatusBar, StyleSheet } from 'react-native';
 import SplashScreen from './components/shared/SplashScreen';
 import SelectLanguage from './root/screens/SelectLanguage';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,6 +30,10 @@ import LoaderSpin from './components/shared/LoaderSpin';
 import AvailableMembership from './root/screens/Membership/AvailableMembership';
 import MembershipHistory from './root/screens/Membership/MembershipHistory';
 import WaterPlus from './root/screens/Services/WaterPlus';
+import * as Notifications from 'expo-notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUpdateExpoPushToken } from './query/userqueries/queries';
+import { updateExpoPushToken } from './query/userqueries/functions';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -57,13 +61,36 @@ export default function App() {
     }
   }
 
-  async function userdataSetting() {
-    setUserData(await getVerifiedData());
-  }
+  const registerForPushNotifications = async () => {
+    const user_data = await AsyncStorage.getItem('user_data');
+    setUserData(user_data ? JSON.parse(user_data) : null);
+    if (!user_data) return;
+    const expo_push_token = await AsyncStorage.getItem('expo-push-token');
+    if (expo_push_token) return;
+    try {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+        });
+      }
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      await AsyncStorage.setItem('expo-push-token', token);
+      const userToken = await AsyncStorage.getItem('user_token');
+      const response = await updateExpoPushToken({
+        expo_push_token: token
+      }, userToken ? userToken : '');
+      if(!response || response?.error) {
+        await AsyncStorage.removeItem('expo-push-token')
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  };
 
   useEffect(() => {
-    genAndStore()
-    userdataSetting();
+    genAndStore();
+    registerForPushNotifications();
   }, [])
 
   const [fontLoaded] = useFonts({
@@ -170,7 +197,7 @@ export default function App() {
                   headerShown: false,
                 }} />
               </Stack.Navigator>
-                <Toast config={toastConfig} />
+              <Toast config={toastConfig} />
             </NavigationContainer>
           </SafeAreaView>
         </TanstackProvider>}

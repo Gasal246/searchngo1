@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ConnectionModal from '../../components/shared/Connection/ConnectionModal';
 import SideBar from '../../components/shared/SideBar';
@@ -15,53 +15,6 @@ import * as Notifications from 'expo-notifications';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useDispatch<AppDispatch>();
-    const { user_data: currentUserData } = useSelector((state: RootState) => state.authentication);
-
-    useEffect(() => {
-        const requestPermissions = async () => {
-            const { status } = await Notifications.requestPermissionsAsync();
-            if (status !== 'granted') {
-                console.error('Notification permissions not granted');
-            }
-        };
-
-        // Configure notification handler
-        Notifications.setNotificationHandler({
-            handleNotification: async () => ({
-                shouldShowAlert: true,
-                shouldPlaySound: true,
-                shouldSetBadge: false,
-            }),
-        });
-
-        const setupNotifications = async () => {
-            await requestPermissions();
-
-            const socket = connectSocket();
-            joinChannel('global');
-            joinChannel(`sng-user-${currentUserData.id}`);
-            listenToEvent('notification', async (data: any) => {
-                console.log('Received notification:', data);
-                await Notifications.scheduleNotificationAsync({
-                    content: {
-                        title: 'New Notification',
-                        body: data?.message,
-                    },
-                    trigger: null,
-                });
-                Toast.show({
-                    type: 'info',
-                    text1: data?.message
-                })
-            });
-
-            return () => {
-                disconnectSocket();
-            };
-        };
-
-        setupNotifications();
-    }, []);
 
     return (
         <SafeAreaView style={{ backgroundColor: "#222831", width: "100%", height: "100%" }}>

@@ -22,3 +22,16 @@ export async function initialUpdateProfile(formData: FormData, token: string) {
     }
 }
 
+export async function updateExpoPushToken(formData: { expo_push_token: string }, token: string ) {
+    try {
+        const res = await axiosInstance.post(`/users/update-expo-push-token`, formData, {
+            headers: {
+                Authorization: formatBearerToken(token)
+            }
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+

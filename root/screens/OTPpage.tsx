@@ -1,5 +1,5 @@
 import React, { RefObject, useRef, useState } from 'react';
-import { Image, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import { OTPInput } from '../../components/shared/OtpInput';
 import GradientButtonOne from '../../components/shared/GradientButtonOne';
 import { FontAwesome } from '@expo/vector-icons';
@@ -12,6 +12,8 @@ import { RootState } from '../../redux/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadAuthentication, loadToken, loadUserData } from '../../redux/slices/appAuthenticationSlice';
 import { loadLoadingModal } from '../../redux/slices/remoteModalSlice';
+import * as Notifications from 'expo-notifications';
+import { useUpdateExpoPushToken } from '../../query/userqueries/queries';
 
 const OTPpage = () => {
     const navigation = useNavigation<NavigationProp>();
@@ -22,6 +24,7 @@ const OTPpage = () => {
     const device_mac_id = useSelector((state: RootState) => state.verification.device_mac_id);
     const country_code = useSelector((state: RootState) => state.verification.country_code);
     const dispatch = useDispatch();
+    const { mutateAsync: updateExpoPushTokenInUserData } = useUpdateExpoPushToken()
 
     const refs: RefObject<TextInput>[] = [
         useRef<TextInput>(null),
@@ -61,6 +64,44 @@ const OTPpage = () => {
             refs[index + 1]?.current?.focus();
         }
     };
+    const registerForPushNotifications = async () => {
+        const user_data = await AsyncStorage.getItem('user_data');
+        if (!user_data) return;
+        const expo_push_token = await AsyncStorage.getItem('expo-push-token');
+        if (expo_push_token) return;
+        try {
+            if (Platform.OS === 'android') {
+                await Notifications.setNotificationChannelAsync('default', {
+                    name: 'default',
+                    importance: Notifications.AndroidImportance.MAX,
+                });
+            }
+            // Request notification permissions and get the token
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+
+            if (finalStatus !== 'granted') {
+                console.log('Notification permissions not granted!');
+                return;
+            }
+            const token = (await Notifications.getExpoPushTokenAsync()).data;
+            await AsyncStorage.setItem('expo-push-token', token);
+            const userToken = await AsyncStorage.getItem('user_token');
+            await updateExpoPushTokenInUserData({
+                formData: {
+                    expo_push_token: token
+                }, token: userToken ? userToken : ''
+            });
+            return;
+        } catch (error) {
+            console.log(error)
+        }
+    };
 
     async function verifyPhoneNumberAndProgress() {
         dispatch(loadLoadingModal(true))
@@ -87,6 +128,7 @@ const OTPpage = () => {
                     text1: 'User Verified',
                     text2: "OTP Verification Successfull"
                 })
+                await registerForPushNotifications();
                 return navigation.replace('UpdateProfile');
             } else {
                 dispatch(loadLoadingModal(false))

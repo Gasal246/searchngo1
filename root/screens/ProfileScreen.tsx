@@ -17,7 +17,7 @@ const ProfileScreen = () => {
     const { token } = useSelector((state: RootState) => state.authentication)
 
     useEffect(() => {
-        if(token){
+        if (token) {
             console.log(token)
         }
     }, [token])
@@ -25,52 +25,45 @@ const ProfileScreen = () => {
     return (
         <RootLayout>
             <View style={styles.page_view}>
-                <View style={styles.profile_image_container}>
-                    <Image source={{ uri: `${profilePrefix(userData?.id)}?t=${new Date()}` }} style={styles.profile_image} />
+                <View style={styles.box_view}>
+                    <View style={styles.profile_image_container}>
+                        <Image source={{ uri: `${profilePrefix(userData?.id)}?t=${new Date()}` }} style={styles.profile_image} />
+                    </View>
+                    <TouchableOpacity style={styles.edit_view}>
+                        <AntDesign name="edit" size={16} color='#4BCD9C' />
+                        <Text style={styles.text_edit_profile}>Edit Profile</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.text_one}>{userData?.name}</Text>
+                    <View style={styles.field_view}>
+                        <Text style={styles.field_key}>UUID:</Text>
+                        <Text style={styles.field_value}>{splitString(userData?.uuid, 4)}</Text>
+                    </View>
+                    <View style={styles.field_view}>
+                        <Text style={styles.field_key}>Phone:</Text>
+                        <Text style={styles.field_value}>+{userData?.country_code + " " + userData?.phone}</Text>
+                    </View>
+                    <Text style={styles.section_devider_text}>Details: </Text>
+                    <View style={styles.field_view}>
+                        <Text style={styles.field_key}>Email:</Text>
+                        <Text style={styles.field_value}>{userData?.email}</Text>
+                    </View>
+                    <View style={styles.field_view}>
+                        <Text style={styles.field_key}>Nationality:</Text>
+                        <Text style={styles.field_value}></Text>
+                    </View>
+                    <View style={styles.field_view}>
+                        <Text style={styles.field_key}>Gender:</Text>
+                        <Text style={styles.field_value}></Text>
+                    </View>
+                    <View style={styles.field_view}>
+                        <Text style={styles.field_key}>Age:</Text>
+                        <Text style={styles.field_value}></Text>
+                    </View>
+                    <View style={styles.field_view}>
+                        <Text style={styles.field_key}>Passport ID:</Text>
+                        <Text style={styles.field_value}></Text>
+                    </View>
                 </View>
-                <TouchableOpacity style={styles.edit_view}>
-                    <AntDesign name="edit" size={16} color='#4BCD9C' />
-                    <Text style={styles.text_edit_profile}>Edit Profil</Text>
-                </TouchableOpacity>
-                <Text style={styles.text_one}>{userData?.name}</Text>
-                <View style={styles.field_view}>
-                    <Text style={styles.field_key}>UUID:</Text>
-                    <Text style={styles.field_value}>{userData?.uuid}</Text>
-                </View>
-                <View style={styles.field_view}>
-                    <Text style={styles.field_key}>Phone:</Text>
-                    <Text style={styles.field_value}>+{userData?.country_code + " " + userData?.phone}</Text>
-                </View>
-                <Text style={styles.section_devider_text}>Details: </Text>
-                <View style={styles.field_view}>
-                    <Text style={styles.field_key}>Email:</Text>
-                    <Text style={styles.field_value}>{userData?.email}</Text>
-                </View>
-                <View style={styles.field_view}>
-                    <Text style={styles.field_key}>Nationality:</Text>
-                    <Text style={styles.field_value}></Text>
-                </View>
-                <View style={styles.field_view}>
-                    <Text style={styles.field_key}>Gender:</Text>
-                    <Text style={styles.field_value}></Text>
-                </View>
-                <View style={styles.field_view}>
-                    <Text style={styles.field_key}>Age:</Text>
-                    <Text style={styles.field_value}></Text>
-                </View>
-                <View style={styles.field_view}>
-                    <Text style={styles.field_key}>Passport ID:</Text>
-                    <Text style={styles.field_value}></Text>
-                </View>
-                <Text style={styles.section_devider_text}>Base Camp Details: </Text>
-                <View style={styles.field_view}>
-                    <Text style={styles.field_key}>Base Camp:</Text>
-                    <Text style={styles.field_value}>{userData?.email}</Text>
-                </View>
-                {/* <View style={styles.field_view}>
-                    <Text style={styles.field_key}>Base Camp:</Text>
-                    <Text style={styles.field_value}>{userData?.email}</Text>
-                </View> */}
             </View>
         </RootLayout>
     );
@@ -78,20 +71,36 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
     page_view: {
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        paddingTop: 70
+    },
+    box_view: {
+        borderWidth: 2,
+        borderColor: 'white',
+        paddingVertical: 25,
+        paddingHorizontal: 15,
+        borderRadius: 15,
+        position: 'relative',
+        width: '100%',
+        paddingTop: 85
     },
     profile_image_container: {
-        backgroundColor: 'transparent',
+        backgroundColor: 'white',
         marginHorizontal: 'auto',
         overflow: 'hidden',
         borderRadius: 100,
-        marginTop: 15,
-        marginBottom: 5,
         borderColor: 'white',
         borderWidth: 1,
+        width: '45%',
+        height: 'auto',
+        aspectRatio: 1 / 1,
+        position: "absolute",
+        zIndex: 10,
+        top: "-25%",
+        left: '33%'
     },
     profile_image: {
-        width: '40%',
+        width: '100%',
         height: 'auto',
         aspectRatio: 1 / 1
     },

@@ -1,4 +1,5 @@
 import { PermissionsAndroid, Platform } from "react-native";
+const moment = require('moment');
 
 // fucntion to split any string to given number of parts --gasal
 export function splitString(value: string, num: number): string {
@@ -44,3 +45,11 @@ export const requestLocationPermission = async () => {
         return false;
     }
 };
+
+export const convertIsoToUnixMinutes = (
+    isoDateString: string | number | Date,
+  ) => {
+    const unixSeconds = moment(isoDateString).unix();
+    return unixSeconds;
+  };
+  

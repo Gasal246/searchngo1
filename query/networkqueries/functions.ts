@@ -1,12 +1,15 @@
 import axios from "axios";
+import { formatBearerToken } from "../../lib/utils";
 
-export async function fetchLocation (ssid: string) {
+const loginConnectApi = 'http://gateway.searchngo.app/www/pub/login/connect/';
+
+export async function fetchLocation(ssid: string) {
     try {
         const ssplit = ssid?.toUpperCase().split('_');
         // console.log("SSID passed: ", ssid)
-        if(ssplit[0] != 'SG') return { outside: true }; 
+        if (ssplit[0] != 'SG') return { outside: true };
         let url = ''
-        switch(ssplit[ssplit?.length - 1]){
+        switch (ssplit[ssplit?.length - 1]) {
             case 'AL': {
                 url = 'http://gateway.searchngo.app/www/pub/login/user_info/?op=device_info';
                 // console.log('fetching SG location Api')
@@ -27,3 +30,16 @@ export async function fetchLocation (ssid: string) {
     }
 }
 
+export async function connectInternetFunction(formData: object, token: string) {
+    try {
+        const res = await axios.post(loginConnectApi, formData, {
+            headers: {
+                Authorization: formatBearerToken(token),
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+}

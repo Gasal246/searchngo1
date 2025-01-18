@@ -25,3 +25,16 @@ export async function validateCampApiFunction ( camp_id: string, client_mac: str
     }
 }
 
+export async function getCampByCampId ( campId: string, token: string ) {
+    try {
+        const res = await axiosInstance.get(`/users/camps/${campId}`, {
+            headers: {
+                Authorization: formatBearerToken(token)
+            }
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+

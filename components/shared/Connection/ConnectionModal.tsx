@@ -6,44 +6,114 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View, TouchableWithoutFeedba
 import GradientButtonOne from '../GradientButtonOne';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { loadConnectionModal } from '../../../redux/slices/remoteModalSlice';
+import { loadConnectionModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import Toast from 'react-native-toast-message';
 import NetInfo from '@react-native-community/netinfo';
-import { storeSSID } from '../../../redux/slices/NetworkSlice';
+import { convertIsoToUnixMinutes } from '../../../lib/utils';
+import { fetchCampDetailsByCampId } from '../../../redux/slices/campSlice';
+import { connectInternetFunction } from '../../../query/networkqueries/functions';
+import { fetchLocationData, loadLoginConnectData, storeSSID } from '../../../redux/slices/NetworkSlice';
 
 const ConnectionModal = () => {
     const modalVisible = useSelector((state: RootState) => state.remoteModals.connectionModal);
     const language = useSelector((state: RootState) => state.language.language);
-    const navigation = useNavigation<NavigationProp>();
     const dispatch = useDispatch<AppDispatch>();
 
     const closeModal = () => dispatch(loadConnectionModal(false));
     const { ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
-    const { user_data: userData } = useSelector((state: RootState) => state.authentication);
-
+    const { user_data: userData, token: authToken } = useSelector((state: RootState) => state.authentication);
+    const { location_info, loginConnectData: connectionData } = useSelector((state: RootState) => state.networkData);
+    const [locationData, setLocationData] = useState(location_info)
     const { currentMemebership } = useSelector((state: RootState) => state.membership);
 
-    const handleConnectInternet = async () => {
+    async function justFetchLocationOnce() {
+        console.log("Current SSID: ", currentSSID);
+        let ssid = currentSSID;
         if(!currentSSID) {
+            const wifiState: any = await NetInfo.fetch('wifi');
+            ssid = wifiState?.details?.ssid?.toUpperCase();
+        }
+        const locationInfo = await dispatch(fetchLocationData(ssid));
+        if(locationInfo?.payload?.SG?.InternetAccess == 'no' && locationInfo?.payload?.SG?.LoggedIn == 'no') {
+            dispatch(loadLoginConnectData(null));
+        }
+        setLocationData(locationInfo?.payload);
+        console.log('Location Data From Connection Modal ' + new Date().toLocaleTimeString(), " : ", locationInfo.payload);
+    }
+
+    useEffect(() => {
+        justFetchLocationOnce();
+    }, []);
+
+    const handleConnectInternet = async () => {
+        dispatch(loadLoadingModal(true));
+        if (!currentSSID) {
             const wifiState: any = await NetInfo.fetch('wifi')
             const ssId = wifiState?.details?.ssid?.toUpperCase();
             await dispatch(storeSSID(ssId));
         }
-        if(currentSSID?.split('_')[0] != 'SG') {
+        if (currentSSID?.split('_')[0] != 'SG') {
             return Toast.show({
                 type: "error",
                 text1: "Connect to Camp WIFI",
                 text2: "connect camp wifi to continue this action.",
             })
         }
-        if(!currentMemebership) {
+        if (!currentMemebership) {
             return Toast.show({
                 type: 'error',
                 text1: 'No Active Membership Found',
                 text2: "please check your membership history."
             })
         }
-        
+        try {
+            const activePackageData = currentMemebership[0];
+            const campidFetch = await dispatch(fetchCampDetailsByCampId({ campId: userData?.location_camp?.location_camp_id, token: authToken! }))
+            const camp_details = campidFetch.payload;
+            const expiryMinutes: any = convertIsoToUnixMinutes(activePackageData?.package_expiry_date);
+            console.log('CRMB', activePackageData);
+            console.log('Package Expiry Date Unix', expiryMinutes);
+            const descriptionData = `${activePackageData?.user?.phone} - ${activePackageData?.user?.name} - ${activePackageData?.user?.uuid}`;
+
+            const data = new FormData();
+            console.log("Active Package Data: ", activePackageData);
+            const accessCodeData = (activePackageData?.user?.uuid ?? '') + (activePackageData?.package_code ?? '') + (activePackageData?.camp_id ?? '');
+            // console.log("ACCESS CODE DATA: ", accessCodeData);
+            data.append('Access_Code', accessCodeData);
+            data.append('Package', activePackageData?.package_name);
+            data.append('Expiry', expiryMinutes);
+            data.append('Validity', activePackageData?.duration);
+            data.append('Creator', activePackageData?.created_by_type);
+            data.append('Billing_ID', activePackageData?.order_from_camp_detail?.id);
+            data.append('upload_bandwidth', activePackageData?.download_bandwidth);
+            data.append('download_bandwidth', activePackageData?.download_bandwidth);
+            data.append('bandwidth_unit', 'mbps');
+            data.append('description', descriptionData);
+            data.append('user_admin', userData?.base_camp_client_id);
+            data.append('user_site', userData?.base_camp_id);
+            data.append('user_ip', locationData?.SG?.client_ip);
+            data.append('Auth_Code', camp_details?.router_secret);
+
+            const response = await connectInternetFunction(data, authToken!);
+
+            if(response.SG || response?.SG?.Success === 1) {
+                dispatch(loadLoginConnectData(response?.SG));
+                closeModal();
+                const l_data = await dispatch(fetchLocationData(currentSSID));
+                setLocationData(l_data.payload)
+                return Toast.show({
+                    type: "success",
+                    text1: "Connected",
+                    text2: "You have connected to internet."
+                })
+            } else {
+                dispatch(loadLoginConnectData(null))
+            }
+        } catch (error) {
+            console.log(error)
+        } finally {
+            dispatch(loadLoadingModal(false));
+        }
     }
 
     return (
@@ -72,11 +142,12 @@ const ConnectionModal = () => {
                                         <Text style={styles.location_desc}>{userData?.location_camp?.location_camp_name || 'Out of service area'}</Text>
                                     </View>
 
-                                    {currentMemebership ? <View style={styles.flex_container}>
+                                    {currentMemebership && locationData?.SG?.InternetAccess == 'no' && locationData?.SG?.LoggedIn == 'no' ?
+                                     <View style={styles.flex_container}>
                                         <GradientButtonOne
                                             colors={["#8D9092", "#626365"]}
                                             style={{ borderRadius: 10, width: "28%", marginBottom: 10 }}
-                                            onPress={() => navigation.navigate("Services")}
+                                            onPress={closeModal}
                                         >
                                             <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                                                 <Text style={styles.textSubmit}>{translations[language].home_skip}</Text>
@@ -86,17 +157,17 @@ const ConnectionModal = () => {
                                         <GradientButtonOne
                                             colors={["#4EFBE6", "#5AE7A6"]}
                                             style={{ borderRadius: 10, width: "69%", marginBottom: 10 }}
-                                            onPress={() => navigation.navigate("Services")}
+                                            onPress={handleConnectInternet}
                                         >
                                             <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                                                 <Text style={styles.textSubmit}>{translations[language].home_submit}</Text>
                                                 <FontAwesome name="arrow-right" size={20} color="white" />
                                             </View>
                                         </GradientButtonOne>
-                                    </View> : 
-                                    <TouchableOpacity style={styles.not_found_view} onPress={closeModal}>
-                                        <Text style={styles.not_found_text}>Close</Text>
-                                    </TouchableOpacity>
+                                    </View> :
+                                        <TouchableOpacity style={styles.not_found_view} onPress={closeModal}>
+                                            <Text style={styles.not_found_text}>{locationData?.SG?.InternetAccess == 'yes' && locationData?.SG?.LoggedIn == 'yes' ? "Already Connected" : "Close"}</Text>
+                                        </TouchableOpacity>
                                     }
                                 </View>
                             </View>

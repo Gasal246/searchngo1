@@ -67,7 +67,7 @@ const FetchEssentials = () => {
 
             if (ssId?.split('_')[0] !== 'SG') {
                 locationInformation = null;
-                throw new Error('network failure', { cause: 'network failure' });
+                throw new Error('network failure');
             }
 
             if (!ssId || ssId === currentSSID) return;
@@ -80,7 +80,7 @@ const FetchEssentials = () => {
                     let string = JSON.stringify(data.payload);
                     let obj = JSON.parse(string);
                     locationInformation = obj;
-                    // console.log("Location Data: ", locationInformation);
+                    console.log("Location Data: ", locationInformation);
                 }
                 dispatch(loadConnectionModal(true));
                 dispatch(loadLoadingModal(false));
@@ -111,7 +111,7 @@ const FetchEssentials = () => {
                 client_mac: locationInformation?.SG?.client_mac,
                 token: authToken,
             });
-            // console.log(response)
+            console.log("Validate camp result", response)
             if (!response?.data) throw new Error("[VALIDATE CAMP] Response Data Not Found");
             dispatch(loadUserData(JSON.stringify(response.data.user_data)));
             await AsyncStorage.setItem('user_data', JSON.stringify(response.data.user_data))

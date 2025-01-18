@@ -5,6 +5,7 @@ import authenticationReducer from './slices/appAuthenticationSlice';
 import remoteModalReducer from './slices/remoteModalSlice';
 import networkDataReducer from './slices/NetworkSlice';
 import membershipDataReducer from './slices/membershipDetails';
+import campReducer from './slices/campSlice';
 
 export const store = configureStore({
   reducer: {
@@ -13,7 +14,8 @@ export const store = configureStore({
     authentication: authenticationReducer,
     remoteModals: remoteModalReducer,
     networkData: networkDataReducer,
-    membership: membershipDataReducer
+    membership: membershipDataReducer,
+    camp: campReducer
   },
 });
 

@@ -9,15 +9,18 @@ import { loadConnectionModal } from '../../redux/slices/remoteModalSlice';
 import { loadLogoutApp } from '../../redux/slices/appAuthenticationSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { translations } from '../../lib/translations';
-import { RootState } from '../../redux/store';
+import { AppDispatch, RootState } from '../../redux/store';
+import { fetchLocationData } from '../../redux/slices/NetworkSlice';
+import NetInfo from '@react-native-community/netinfo';
 
 const SideBar = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const orientation = useSelector((state: RootState) => state.language.orientation);
   const slideAnim = useState(new Animated.Value(-300))[0];
   const navigation = useNavigation<NavigationProp>();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const language = useSelector((state: RootState) => state.language.language);
+  const { ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
 
   useEffect(() => {
     if (modalVisible) {
@@ -33,7 +36,9 @@ const SideBar = () => {
     }
   }, [modalVisible]);
 
-  const handleOpenConnectionModal = () => {
+  const handleOpenConnectionModal = async () => {
+    const ld = await dispatch(fetchLocationData(currentSSID));
+    console.log("Location Data On Click :", ld.payload);
     dispatch(loadConnectionModal(true));
     setModalVisible(false)
   }
@@ -82,7 +87,7 @@ const SideBar = () => {
 
                   <View style={styles.section}>
                     <Text style={styles.section_title}>{translations[language].membership}</Text>
-                    <TouchableOpacity style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]} onPress={handleOpenConnectionModal}>
+                    <TouchableOpacity style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]} onPress={() => handleOpenConnectionModal()}>
                       {orientation == 'left' && <MaterialCommunityIcons name="transit-connection-variant" size={20} color="black" />}
                       <Text style={styles.link_text}>{translations[language].connect_to_membership}</Text>
                       {orientation == 'right' && <MaterialCommunityIcons name="transit-connection-variant" size={20} color="black" />}

@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Modal, StyleSheet, Text, TouchableOpacity, View, TouchableWithoutFeedback, PermissionsAndroid, Alert, } from 'react-native';
 import GradientButtonOne from '../GradientButtonOne';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { loadConnectionModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import Toast from 'react-native-toast-message';
 import NetInfo from '@react-native-community/netinfo';
@@ -22,35 +21,19 @@ const ConnectionModal = () => {
     const closeModal = () => dispatch(loadConnectionModal(false));
     const { ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
     const { user_data: userData, token: authToken } = useSelector((state: RootState) => state.authentication);
-    const { location_info, loginConnectData: connectionData } = useSelector((state: RootState) => state.networkData);
-    const [locationData, setLocationData] = useState(location_info)
+    const { location_info: locationData, loginConnectData: connectionData } = useSelector((state: RootState) => state.networkData);
     const { currentMemebership } = useSelector((state: RootState) => state.membership);
 
-    async function justFetchLocationOnce() {
-        console.log("Current SSID: ", currentSSID);
-        let ssid = currentSSID;
-        if(!currentSSID) {
-            const wifiState: any = await NetInfo.fetch('wifi');
-            ssid = wifiState?.details?.ssid?.toUpperCase();
-        }
-        const locationInfo = await dispatch(fetchLocationData(ssid));
-        if(locationInfo?.payload?.SG?.InternetAccess == 'no' && locationInfo?.payload?.SG?.LoggedIn == 'no') {
-            dispatch(loadLoginConnectData(null));
-        }
-        setLocationData(locationInfo?.payload);
-        console.log('Location Data From Connection Modal ' + new Date().toLocaleTimeString(), " : ", locationInfo.payload);
-    }
-
     useEffect(() => {
-        justFetchLocationOnce();
-    }, []);
+        console.log(locationData)
+    }, [locationData]);
 
     const handleConnectInternet = async () => {
         dispatch(loadLoadingModal(true));
         if (!currentSSID) {
-            const wifiState: any = await NetInfo.fetch('wifi')
+            const wifiState: any = await NetInfo.fetch('wifi');
             const ssId = wifiState?.details?.ssid?.toUpperCase();
-            await dispatch(storeSSID(ssId));
+            dispatch(storeSSID(ssId));
         }
         if (currentSSID?.split('_')[0] != 'SG') {
             return Toast.show({
@@ -95,12 +78,11 @@ const ConnectionModal = () => {
             data.append('Auth_Code', camp_details?.router_secret);
 
             const response = await connectInternetFunction(data, authToken!);
-
-            if(response.SG || response?.SG?.Success === 1) {
+            console.log("Connection Res: ", response);
+            if (response.SG || response?.SG?.Success === 1) {
                 dispatch(loadLoginConnectData(response?.SG));
                 closeModal();
                 const l_data = await dispatch(fetchLocationData(currentSSID));
-                setLocationData(l_data.payload)
                 return Toast.show({
                     type: "success",
                     text1: "Connected",
@@ -143,30 +125,31 @@ const ConnectionModal = () => {
                                     </View>
 
                                     {currentMemebership && locationData?.SG?.InternetAccess == 'no' && locationData?.SG?.LoggedIn == 'no' ?
-                                     <View style={styles.flex_container}>
-                                        <GradientButtonOne
-                                            colors={["#8D9092", "#626365"]}
-                                            style={{ borderRadius: 10, width: "28%", marginBottom: 10 }}
-                                            onPress={closeModal}
-                                        >
-                                            <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                                                <Text style={styles.textSubmit}>{translations[language].home_skip}</Text>
-                                                <FontAwesome name="arrow-right" size={20} color="white" />
-                                            </View>
-                                        </GradientButtonOne>
-                                        <GradientButtonOne
-                                            colors={["#4EFBE6", "#5AE7A6"]}
-                                            style={{ borderRadius: 10, width: "69%", marginBottom: 10 }}
-                                            onPress={handleConnectInternet}
-                                        >
-                                            <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                                                <Text style={styles.textSubmit}>{translations[language].home_submit}</Text>
-                                                <FontAwesome name="arrow-right" size={20} color="white" />
-                                            </View>
-                                        </GradientButtonOne>
-                                    </View> :
+                                        <View style={styles.flex_container}>
+                                            <GradientButtonOne
+                                                colors={["#8D9092", "#626365"]}
+                                                style={{ borderRadius: 10, width: "28%", marginBottom: 10 }}
+                                                onPress={closeModal}
+                                            >
+                                                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                                    <Text style={styles.textSubmit}>{translations[language].home_skip}</Text>
+                                                    <FontAwesome name="arrow-right" size={20} color="white" />
+                                                </View>
+                                            </GradientButtonOne>
+                                            <GradientButtonOne
+                                                colors={["#4EFBE6", "#5AE7A6"]}
+                                                style={{ borderRadius: 10, width: "69%", marginBottom: 10 }}
+                                                onPress={handleConnectInternet}
+                                            >
+                                                <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                                    <Text style={styles.textSubmit}>{translations[language].home_submit}</Text>
+                                                    <FontAwesome name="arrow-right" size={20} color="white" />
+                                                </View>
+                                            </GradientButtonOne>
+                                        </View>
+                                        :
                                         <TouchableOpacity style={styles.not_found_view} onPress={closeModal}>
-                                            <Text style={styles.not_found_text}>{locationData?.SG?.InternetAccess == 'yes' && locationData?.SG?.LoggedIn == 'yes' ? "Already Connected" : "Close"}</Text>
+                                            <Text style={styles.not_found_text}>{"Already Connected"}</Text>
                                         </TouchableOpacity>
                                     }
                                 </View>

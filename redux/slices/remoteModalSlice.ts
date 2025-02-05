@@ -4,12 +4,14 @@ interface RemoteModalState {
     connectionModal: boolean;
     loadingModal: boolean;
     qrModal: boolean;
+    changeBaseCampModal: boolean;
 }
 
 const initialState: RemoteModalState = {
     connectionModal: false,
     loadingModal: false,
-    qrModal: false
+    qrModal: false,
+    changeBaseCampModal: false,
 }
 
 const remoteModalSlice = createSlice({
@@ -24,10 +26,14 @@ const remoteModalSlice = createSlice({
         },
         loadQRModal: (state, action: PayloadAction<boolean>) => {
             state.qrModal = action.payload;
-        }
+        },
+        loadChangeBaseCampModal: (state, action: PayloadAction<boolean>) => {
+            state.changeBaseCampModal = action.payload;
+            console.log("Dispatched ", action.payload)
+        },
     }
 })
 
-export const { loadConnectionModal, loadLoadingModal, loadQRModal } = remoteModalSlice.actions;
+export const { loadConnectionModal, loadLoadingModal, loadQRModal, loadChangeBaseCampModal } = remoteModalSlice.actions;
 export default remoteModalSlice.reducer;
 

@@ -12,6 +12,7 @@ export async function fetchLocation(ssid: string) {
         switch (ssplit[ssplit?.length - 1]) {
             case 'AL': {
                 url = 'http://gateway.searchngo.app/www/pub/login/user_info/?op=device_info';
+                // url = 'https://shiyamuhammed.com/gateway/www/pub/login/user_info/';
                 // console.log('fetching SG location Api')
                 break;
             }

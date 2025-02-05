@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AppDispatch, RootState } from '../../redux/store';
 import { loadLoadingModal, loadQRModal } from '../../redux/slices/remoteModalSlice';
 import { useGetWalletInfo, useGetWalletTransactions } from '../../query/wallet/query';
-import { formatDateString } from '../../lib/utilities';
+import { extractBracketPairs, formatDateString } from '../../lib/utilities';
 import { translations } from '../../lib/translations';
 import { fetchUserWallet } from '../../redux/slices/appAuthenticationSlice';
 import Toast from 'react-native-toast-message';
@@ -36,11 +36,11 @@ const WalletScreen = () => {
     const handleFetchWallet = async (token: string) => {
         try {
             dispatch(loadLoadingModal(true))
-            const data: any = await dispatch(fetchUserWallet(token));
+            const data = await dispatch(fetchUserWallet(token));
             setWalletInfo(data.payload);
-            if(!data.payload) {
+            if (!data.payload) {
                 navigation.replace('Services');
-                Toast.show({
+                return Toast.show({
                     type: 'info',
                     text1: 'Cannot Load Wallet!'
                 })
@@ -55,7 +55,7 @@ const WalletScreen = () => {
 
     const handleFetchTransactions = async (token: string, walletId: string) => {
         await getTransactions({ token: token, walletId: walletId }).then((data: any) => {
-            if(data?.status !== 200) {
+            if (data?.status !== 200) {
                 throw new Error("Transaction Fetching Error: ", data?.message)
             }
             setTransactions(data?.data)
@@ -77,16 +77,26 @@ const WalletScreen = () => {
             <Ionicons
                 name={item.type === 'credit' ? 'arrow-up-circle' : 'arrow-down-circle'}
                 size={24}
-                color={item.type === 'credit' ? '#4AF4CF' : '#E43552'}
+                color={item.type === 'credit' ? '#4AF4CF' : '#f0b208'}
             // style={{ backgroundColor: , borderRadius: 100, padding: 0}}
             />
             <View style={styles.transactionDetails}>
-                <Text style={styles.transactionTitle}>{item.title}</Text>
+                {extractBracketPairs(item?.title)?.map((text: string, index: number) => (
+                    <Text
+                        key={index}
+                        style={[
+                            styles.transactionTitle,
+                            index >= 1 && styles.bracketPair
+                        ]}
+                    >
+                        {text}
+                    </Text>
+                ))}
                 <Text style={styles.transactionDate}>{formatDateString(item.createdAt)}</Text>
             </View>
             <View style={styles.transactionAmountContainer}>
                 {/* <Text style={styles.transactionAmount}>{item.amount}</Text> */}
-                <Text style={[styles.transactionTx, { color: item.type === 'credit' ? '#4AF4CF' : '#E43552' }]}>{item.type === 'credit' ? '+ ' : '- '}{item.amount} {item.currencyType}</Text>
+                <Text style={[styles.transactionTx, { color: item.type === 'credit' ? '#4AF4CF' : '#f0b208' }]}>{item.type === 'credit' ? '+ ' : '- '}{item.amount} {item.currencyType}</Text>
             </View>
         </View>
     );
@@ -249,6 +259,10 @@ const styles = StyleSheet.create({
     transactionTitle: {
         fontSize: 16,
         color: 'white',
+    },
+    bracketPair: {
+        fontSize: 14,
+        color: '#b7b7b7',
     },
     transactionDate: {
         fontSize: 12,

@@ -19,25 +19,18 @@ type TabTypes = 'current' | 'upcoming' | 'expired';
 const MembershipHistory = () => {
     const dispatch = useDispatch<AppDispatch>()
     const token = useSelector((state: RootState) => state.authentication.token);
-    const [tab, setTab] = useState<TabTypes>('current');
     const [membershipDetails, setMembershipDetails] = useState<any[]>([]);
     const [upcomingMembershipDetails, setUpcomingMembershipDetails] = useState<any[]>([]);
     const [expiredMembershipDetails, setExpireMembershipDetails] = useState<any[]>([]);
     const { mutateAsync: getMembershipDetails, isPending: fetchingMembershipDetails } = useGetUserMembershipDetails();
     const language = useSelector((state: RootState) => state.language.language);
 
-    const handleTabChange = (tab_name: TabTypes) => {
-        if (tab_name === tab) return;
-        setTab(tab_name)
-    }
-
     const handleFetchMemebershipDetails = async () => {
         try {
             if (!token) {
                 return Toast.show({ type: 'error', text1: 'Un Authorised Access' })
             }
-            console.log(token)
-            dispatch(loadLoadingModal(true)) // loading - true
+            dispatch(loadLoadingModal(true));
             const response = await getMembershipDetails({ token: token });
             console.log(membershipDetails)
             if (response?.data?.list) {
@@ -47,9 +40,9 @@ const MembershipHistory = () => {
                 setExpireMembershipDetails(list?.filter((order: any) => order.order_status == 2))
             }
         } catch (error) {
-            console.log(error); // incase any errors
+            console.log(error);
         } finally {
-            dispatch(loadLoadingModal(false)) // loading - false
+            dispatch(loadLoadingModal(false));
         }
     }
 

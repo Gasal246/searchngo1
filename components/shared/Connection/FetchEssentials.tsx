@@ -12,7 +12,6 @@ import { useValidateCamp } from '../../../query/camp/queries';
 import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
 import { clearAll, refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGetWalletInfo } from '../../../query/wallet/query';
 
 const FetchEssentials = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -21,7 +20,6 @@ const FetchEssentials = () => {
     const { location_info: locationData, ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
     const { token: authToken } = useSelector((state: RootState) => state.authentication);
     const { mutateAsync: validateCamp } = useValidateCamp();
-    const { mutateAsync: getWallet, isPending: fetchingWallet } = useGetWalletInfo();
     let locationInformation: any = undefined;
 
     const showErrorToast = useCallback((title: string, message: string) => {
@@ -61,26 +59,29 @@ const FetchEssentials = () => {
     const handleNetworkChange = useCallback(
         async (state: any) => {
             if (!await handleLocationPermission()) return;
+            console.log("Executing Network Change...");
 
             const wifiState: any = await NetInfo.fetch('wifi');
             const ssId = wifiState?.details?.ssid?.toUpperCase();
 
             if (ssId?.split('_')[0] !== 'SG') {
                 locationInformation = null;
-                throw new Error('network failure');
+                throw new Error('not a SG network!');
             }
 
             if (!ssId || ssId === currentSSID) return;
 
+            console.log("Storing Current SSID: ", ssId)
             dispatch(storeSSID(ssId));
             if (ssId.split('_')[0] === 'SG') {
+                console.log("Fetching Location...");
                 dispatch(loadLoadingModal(true));
                 if (!locationInformation) {
                     const data = await dispatch(fetchLocationData(ssId));
-                    let string = JSON.stringify(data.payload);
-                    let obj = JSON.parse(string);
-                    locationInformation = obj;
-                    console.log("Location Data: ", locationInformation);
+                    locationInformation = data.payload;
+                    console.log("Location Data: ", data.payload);
+                } else {
+                    console.log("Already Have Location Info: ", locationInformation);
                 }
                 dispatch(loadConnectionModal(true));
                 dispatch(loadLoadingModal(false));
@@ -90,15 +91,16 @@ const FetchEssentials = () => {
     );
 
     const handleValidateCampFunction = useCallback(async () => {
-        // console.log("Hello Camp Validation");
+        console.log("Handle Validating Camp...");
         if (!locationInformation && currentSSID?.split('_')[0] === 'SG') {
             dispatch(loadLoadingModal(true));
-            await dispatch(fetchLocationData(currentSSID));
+            const data = await dispatch(fetchLocationData(currentSSID));
+            locationInformation = data.payload;
             dispatch(loadLoadingModal(false));
         }
 
         if (!authToken) {
-            console.log("NO AUTH TOKEN")
+            console.log("NO AUTH TOKEN");
             showErrorToast('Token Missing', "Access Denied!");
             return;
         }
@@ -106,6 +108,7 @@ const FetchEssentials = () => {
         try {
             dispatch(loadLoadingModal(true));
             if(!locationInformation) return;
+            console.log("Validating Camp...")
             const response = await validateCamp({
                 camp_id: locationInformation?.SG?.location_id,
                 client_mac: locationInformation?.SG?.client_mac,
@@ -135,11 +138,12 @@ const FetchEssentials = () => {
                 await handleValidateCampFunction();
             })
             .catch((error: any) => {
-                return Toast.show({
-                    type: "info",
-                    text1: "Network Failure",
-                    text2: "connect to camp wifi to get all services"
-                })
+                console.log(error);
+                // return Toast.show({
+                //     type: "info",
+                //     text1: "Network Failure",
+                //     text2: "connect to camp wifi to get all services"
+                // })
             });
         });
 

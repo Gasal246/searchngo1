@@ -25,12 +25,7 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
     }
 
     if (!permission.granted) {
-        return (
-            <View>
-                <Text style={{ color: 'white' }}>{translations[language].need_cam_permission}</Text>
-                <Button onPress={requestPermission} title="grant permission" />
-            </View>
-        );
+        requestPermission();
     }
 
     function handleCloseModal() {

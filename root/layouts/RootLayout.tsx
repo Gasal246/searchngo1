@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ConnectionModal from '../../components/shared/Connection/ConnectionModal';
 import SideBar from '../../components/shared/SideBar';
@@ -9,17 +9,23 @@ import { loadQRModal } from '../../redux/slices/remoteModalSlice';
 import ConnectionQR from '../../components/shared/Connection/ConnectionQR';
 import { AppDispatch, RootState } from '../../redux/store';
 import FetchEssentials from '../../components/shared/Connection/FetchEssentials';
-import { connectSocket, disconnectSocket, joinChannel, listenToEvent } from '../../socketManager';
-import Toast from 'react-native-toast-message';
-import * as Notifications from 'expo-notifications';
+import ChangeBaseCampDialogue from '../../components/shared/Dialogs/ChangeBaseCampDialogue';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useDispatch<AppDispatch>();
+    const { user_data } = useSelector((state: RootState) => state.authentication);
+
+    useEffect(() => {
+        if(user_data?.is_new_user) {
+
+        }
+    }, [user_data])
 
     return (
         <SafeAreaView style={{ backgroundColor: "#222831", width: "100%", height: "100%" }}>
             <ConnectionModal />
             <ConnectionQR />
+            <ChangeBaseCampDialogue />
             <View style={styles.topbar_flex_container}>
                 <FetchEssentials />
                 <SideBar />

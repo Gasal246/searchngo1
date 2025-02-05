@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RootLayout from '../layouts/RootLayout';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../redux/store';
 import { translations } from '../../lib/translations';
+import { loadChangeBaseCampModal } from '../../redux/slices/remoteModalSlice';
 
 const ServicesScreen = () => {
     const language = useSelector((state: RootState) => state.language.language);
     const navigation = useNavigation<NavigationProp>();
+    const dispatch = useDispatch<AppDispatch>();
 
     return (
         <RootLayout>
@@ -30,7 +32,10 @@ const ServicesScreen = () => {
                         </View>
                         <Text style={styles.service_title}>Water Plus</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column}>
+                    <TouchableOpacity style={styles.service_column} onPress={() => {
+                        console.log("Pressend")
+                        dispatch(loadChangeBaseCampModal(true))} 
+                    }>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/MessMate.png')} style={styles.service_icon} />
                         </View>

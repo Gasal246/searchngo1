@@ -11,19 +11,30 @@ import { usePurchaseNewMembership } from '../../../query/membership/queries';
 import Toast from 'react-native-toast-message';
 import { refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import { fetchUserWallet } from '../../../redux/slices/appAuthenticationSlice';
+import { useNavigation } from '@react-navigation/native';
 
 const AvailableMembership = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigation = useNavigation<NavigationProp>()
   const token = useSelector((state: RootState) => state.authentication.token);
   const { upcomingMembership } = useSelector((state: RootState) => state.membership)
   const { mutateAsync: getInternetPackages, isPending: pendingInternetPackages } = useGetCampInternetPackages();
-  const { mutateAsync: purchaseMembership, isPending: purchasingMemebership } = usePurchaseNewMembership();
+  const { mutateAsync: purchaseMembership } = usePurchaseNewMembership();
   const [packages, setPackages] = useState<any[]>([]);
+  const currentSSID = useSelector((state: RootState) => state.networkData.ssid);;
 
   useEffect(() => {
-    // console.log(token)
     if (!token) return;
-    console.log("Token :", token)
+    console.log("Current SSID: ", currentSSID)
+    if(currentSSID?.split('_')[0] != 'SG') {
+      navigation.replace('Services');
+      return Toast.show({
+        type: "error",
+        text1: "Check Your Wifi",
+        text2: "Make sure you connected to correct SSID"
+      })
+    }
+    // console.log("Token :", token)
     const fetchInternetPackages = async () => {
       try {
         dispatch(loadLoadingModal(true));

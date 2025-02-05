@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, PermissionsAndroid, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store';
 import NetInfo from '@react-native-community/netinfo';
@@ -31,27 +31,27 @@ const FetchEssentials = () => {
     }, []);
 
     const handleLocationPermission = useCallback(async () => {
-        const permission = await requestLocationPermission();
-        if (!permission) {
-            Alert.alert(
-                "Enable Location",
-                "Please give access to turn location on to continue using the app.",
-                [
-                    {
-                        text: "Continue",
-                        onPress: async () => {
-                            await requestLocationPermission();
-                        },
-                    },
-                    {
-                        text: "Cancel",
-                        onPress: () => {
-                            navigation.navigate('Services');
-                        },
-                    },
-                ]
+        if (Platform.OS === 'android') {
+            const alreadyGranted = await PermissionsAndroid.check(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
             );
-            return false;
+
+            if (alreadyGranted) {
+                return true; // Permission is already granted
+            }
+
+            // Request permission if not already granted
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                {
+                    title: "Location Permission",
+                    message: "We need access to your location to fetch Wi-Fi SSID.",
+                    buttonNeutral: "Later",
+                    buttonNegative: "Cancel",
+                    buttonPositive: "OK",
+                }
+            );
+            return granted === PermissionsAndroid.RESULTS.GRANTED;
         }
         return true;
     }, [navigation]);

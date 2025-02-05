@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Entypo from '@expo/vector-icons/Entypo';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Button, Image, } from "react-native";
@@ -8,6 +8,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { translations } from "../../lib/translations";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import * as ImageManipulator from 'expo-image-manipulator';
 
 const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNode, title?: string, setImageUri: React.Dispatch<React.SetStateAction<string>> }) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -20,13 +21,19 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
     const [cameraReady, setCameraReady] = useState<boolean>(false);
     const [loading, setLoading] = useState(false)
 
-    if (!permission) {
-        return <View />;
-    }
+    useEffect(() => {
+        if (!permission?.granted) {
+            requestPermission();
+        }
+    }, [permission]);
 
-    if (!permission.granted) {
-        requestPermission();
-    }
+    useEffect(() => {
+        if (image) {
+            setImageUri(image);
+        }
+    }, [image]);
+    
+    if (!permission) return null;
 
     function handleCloseModal() {
         setModalVisible(false);
@@ -43,9 +50,17 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
             try {
                 const picture = await cameraRef.current.takePictureAsync({
                     skipProcessing: true,
-                    quality: 0,
+                    quality: 0.5, // Reduces the quality (optional)
                 });
-                setImage(picture.uri as string);
+    
+                // Resize and compress the image
+                const resizedImage = await ImageManipulator.manipulateAsync(
+                    picture.uri,
+                    [{ resize: { width: 800 } }], // Adjust width (height auto-scales)
+                    { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+                );
+    
+                setImage(resizedImage.uri as string);
             } catch (error) {
                 console.error("Error capturing image:", error);
             } finally {
@@ -59,7 +74,7 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
     }
 
     const handleUseImage = () => {
-        setImageUri(image);
+        // setImageUri(image);
         setModalVisible(false);
         setImage(null);
     }

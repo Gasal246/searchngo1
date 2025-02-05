@@ -1,13 +1,14 @@
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { translations } from '../../lib/translations';
 import RootLayout from '../layouts/RootLayout';
 import { RootState } from '../../redux/store';
 import { splitString } from '../../lib/utils';
 import { profilePrefix } from '../../lib/constants/constatntUrls';
+import { Image } from 'expo-image';
 
 const ProfileScreen = () => {
     const navigation = useNavigation<NavigationProp>();
@@ -27,7 +28,7 @@ const ProfileScreen = () => {
             <View style={styles.page_view}>
                 <View style={styles.box_view}>
                     <View style={styles.profile_image_container}>
-                        <Image source={{ uri: `${profilePrefix(userData?.id)}?t=${new Date()}` }} style={styles.profile_image} />
+                        <Image source={{ uri: `${profilePrefix(userData?.id)}?${userData.updatedAt}`, cacheKey:`profile-image`  }} style={styles.profile_image} />
                     </View>
                     <TouchableOpacity style={styles.edit_view}>
                         <AntDesign name="edit" size={16} color='#4BCD9C' />

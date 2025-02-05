@@ -1,6 +1,6 @@
 import { FontAwesome } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import GradientButtonOne from '../../components/shared/GradientButtonOne';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,66 +13,110 @@ import { loadToken, loadUserData } from '../../redux/slices/appAuthenticationSli
 import axios from 'axios';
 import { apiPrefix, currentApi, profilePrefix } from '../../lib/constants/constatntUrls';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Image } from 'expo-image';
 // import FormData from 'form-data';
 
 const UpdateProfile = () => {
     const navigation = useNavigation<NavigationProp>();
     const language = useSelector((state: RootState) => state.language.language);
     const { user_data: userData, token: authToken } = useSelector((state: RootState) => state.authentication);
-    const [fullName, setFullName] = useState<string>(userData?.name);
+    const [isChanges, setIsChanges] = useState(false);
+    const [fullName, setFullName] = useState<string>(userData?.name || '');
     const [imageUrl, setImageUrl] = useState<any>();
     const [imageError, setImageError] = useState(false);
     const dispatch = useDispatch();
+
+    // Track original values using refs
+    const originalName = useRef(userData?.name || '');
+    const originalImageUrl = useRef(profilePrefix(userData?.id));
+
+    useEffect(() => {
+        const initialImageUrl = `${profilePrefix(userData?.id)}?t=${new Date().getTime()}`;
+        setImageUrl(initialImageUrl);
+        setImageError(!initialImageUrl);
+    }, [userData?.id]);
+
+    // Check for changes whenever name or image updates
+    useEffect(() => {
+        const nameChanged = fullName !== originalName.current;
+        const cleanImageUrl = imageUrl?.split('?')[0];
+        const cleanOriginalImageUrl = originalImageUrl.current?.split('?')[0];
+        const imageChanged = cleanImageUrl !== cleanOriginalImageUrl;
+        // const imageChanged = imageUrl !== originalImageUrl.current && !imageUrl?.startsWith(originalImageUrl.current);
+        setIsChanges(nameChanged || imageChanged);
+    }, [fullName, imageUrl]);
 
     const handleNameOnChange = (text: string) => {
         setFullName(text)
     }
 
-    useEffect(() => {
-        const image = `${profilePrefix(userData?.id)}?t=${new Date()}`
-        if (image) {
-            setImageUrl(`${profilePrefix(userData?.id)}?t=${new Date()}`);
-            setImageError(false)
-        } else {
-            setImageError(true)
-        }
-    }, [])
-
     const handleUpdateProfile = async () => {
+        if (!isChanges && fullName.trim().length > 0) {
+            navigation.replace('Services');
+        }
         try {
             const formData = new FormData();
-            if (imageUrl) {
-                formData.append('photo', {
-                    name: 'profileimage.jpg',
-                    type: 'image/jpeg',
-                    uri: imageUrl
-                } as any);
-            }
-            formData.append("username", fullName);
-            const { data: response } = await axios.post(currentApi + apiPrefix + `/users/update-profile?name=${fullName}`, formData, {
-                headers: {
-                    Authorization: formatBearerToken(authToken!),
-                    "Content-Type": 'multipart/form-data'
+            let hasChanges = false;
+
+            // Check image changes
+            if (imageUrl && !imageUrl.startsWith(originalImageUrl.current)) {
+                if (imageUrl.startsWith("file://")) {
+                    formData.append('photo', {
+                        name: 'profileimage.jpg',
+                        type: 'image/jpeg',
+                        uri: imageUrl
+                    } as any);
                 }
-            })
+                hasChanges = true;
+            }
+
+            // Check name changes
+            if (fullName !== originalName.current) {
+                formData.append("username", fullName);
+                hasChanges = true;
+            }
+
+            if (!hasChanges) {
+                navigation.replace('Services');
+                return;
+            };
+
+            const { data: response } = await axios.post(
+                `${currentApi}${apiPrefix}/users/update-profile`,
+                formData,
+                {
+                    headers: {
+                        Authorization: formatBearerToken(authToken!),
+                        "Content-Type": 'multipart/form-data'
+                    }
+                }
+            );
+
             if (response?.error) {
-                return Toast.show({
+                Toast.show({
                     type: 'error',
-                    text1: 'Something went wrong',
-                    text2: "Your image hasn't uploaded."
+                    text1: "Error on updating profile"
                 });
+                return;
             }
 
             if (response?.data) {
-                dispatch(loadToken(response?.data?.token));
-                dispatch(loadUserData(JSON.stringify(response?.data?.user_data)));
-                await AsyncStorage.setItem('user_data', JSON.stringify(response?.data?.user_data));
-                await AsyncStorage.setItem('user_token', response?.data?.token);
+                dispatch(loadToken(response.data.token));
+                dispatch(loadUserData(JSON.stringify(response.data.user_data)));
+                await AsyncStorage.multiSet([
+                    ['user_data', JSON.stringify(response.data.user_data)],
+                    ['user_token', response.data.token]
+                ]);
                 navigation.replace('Services');
             }
 
         } catch (error) {
-            console.error(error);
+            console.error('Update profile error:', error);
+            Toast.show({
+                type: 'error',
+                text1: "Error On Initial Profile Update!",
+                text2: "Please check the log for more details."
+            });
         }
     };
 
@@ -90,7 +134,7 @@ const UpdateProfile = () => {
                     <CameraModal
                         setImageUri={setImageUrl}>
                         {!imageError ? (
-                            <Image source={{ uri: imageUrl }} style={styles.previewImage} />
+                            <Image source={{ uri: imageUrl, cacheKey: `profile-image` }} style={styles.previewImage} />
                         ) : (
                             <View style={styles.camera_view}>
                                 <FontAwesome name="camera" size={60} color="gray" />

@@ -24,9 +24,9 @@ const ConnectionModal = () => {
     const { location_info: locationData, loginConnectData: connectionData } = useSelector((state: RootState) => state.networkData);
     const { currentMemebership } = useSelector((state: RootState) => state.membership);
 
-    useEffect(() => {
-        console.log(locationData)
-    }, [locationData]);
+    // useEffect(() => {
+    //     console.log(locationData)
+    // }, [locationData]);
 
     const handleConnectInternet = async () => {
         dispatch(loadLoadingModal(true));
@@ -149,7 +149,7 @@ const ConnectionModal = () => {
                                         </View>
                                         :
                                         <TouchableOpacity style={styles.not_found_view} onPress={closeModal}>
-                                            <Text style={styles.not_found_text}>{"Already Connected"}</Text>
+                                            <Text style={styles.not_found_text}>{(!currentMemebership || locationData?.outside) ? "Close" : "Already Connected"}</Text>
                                         </TouchableOpacity>
                                     }
                                 </View>

@@ -11,24 +11,14 @@ import { profilePrefix } from '../../lib/constants/constatntUrls';
 import { Image } from 'expo-image';
 
 const ProfileScreen = () => {
-    const navigation = useNavigation<NavigationProp>();
-    const language = useSelector((state: RootState) => state.language.language);
     const { user_data: userData } = useSelector((state: RootState) => state.authentication);
-
-    const { token } = useSelector((state: RootState) => state.authentication)
-
-    useEffect(() => {
-        if (token) {
-            console.log(token)
-        }
-    }, [token])
 
     return (
         <RootLayout>
             <View style={styles.page_view}>
                 <View style={styles.box_view}>
                     <View style={styles.profile_image_container}>
-                        <Image source={{ uri: `${profilePrefix(userData?.id)}?${userData.updatedAt}`, cacheKey:`profile-image`  }} style={styles.profile_image} />
+                        <Image source={{ uri: `${profilePrefix(userData?.id)}?${userData?.updatedAt}` }} style={styles.profile_image} />
                     </View>
                     <TouchableOpacity style={styles.edit_view}>
                         <AntDesign name="edit" size={16} color='#4BCD9C' />

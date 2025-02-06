@@ -2,15 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RootLayout from '../layouts/RootLayout';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../redux/store';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 import { translations } from '../../lib/translations';
-import { loadChangeBaseCampModal } from '../../redux/slices/remoteModalSlice';
 
 const ServicesScreen = () => {
     const language = useSelector((state: RootState) => state.language.language);
     const navigation = useNavigation<NavigationProp>();
-    const dispatch = useDispatch<AppDispatch>();
+    const { token } = useSelector((state: RootState) => state.authentication);
+
+    useEffect(() => {
+        if(!token) {
+            navigation.replace('Language');
+        }
+    }, [token])
 
     return (
         <RootLayout>

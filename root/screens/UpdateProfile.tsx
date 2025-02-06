@@ -51,6 +51,7 @@ const UpdateProfile = () => {
     }
 
     const handleUpdateProfile = async () => {
+        // for users who already have a name and pic -- checking if anything changed ?
         if (!isChanges && fullName.trim().length > 0) {
             navigation.replace('Services');
         }
@@ -72,7 +73,6 @@ const UpdateProfile = () => {
 
             // Check name changes
             if (fullName !== originalName.current) {
-                formData.append("username", fullName);
                 hasChanges = true;
             }
 
@@ -82,7 +82,7 @@ const UpdateProfile = () => {
             };
 
             const { data: response } = await axios.post(
-                `${currentApi}${apiPrefix}/users/update-profile`,
+                `${currentApi}${apiPrefix}/users/update-profile?name=${fullName}`,
                 formData,
                 {
                     headers: {
@@ -91,6 +91,8 @@ const UpdateProfile = () => {
                     }
                 }
             );
+
+            console.log("Update Profile Response: ", response)
 
             if (response?.error) {
                 Toast.show({
@@ -107,6 +109,10 @@ const UpdateProfile = () => {
                     ['user_data', JSON.stringify(response.data.user_data)],
                     ['user_token', response.data.token]
                 ]);
+                Toast.show({
+                    type: "success",
+                    text1: "Profile Successfully Updated!"
+                })
                 navigation.replace('Services');
             }
 
@@ -134,7 +140,7 @@ const UpdateProfile = () => {
                     <CameraModal
                         setImageUri={setImageUrl}>
                         {!imageError ? (
-                            <Image source={{ uri: imageUrl, cacheKey: `profile-image` }} style={styles.previewImage} />
+                            <Image source={{ uri: imageUrl, cacheKey: `initial-profile-image` }} style={styles.previewImage} placeholder={require('../../assets/images/png/FaceMask.png')} />
                         ) : (
                             <View style={styles.camera_view}>
                                 <FontAwesome name="camera" size={60} color="gray" />

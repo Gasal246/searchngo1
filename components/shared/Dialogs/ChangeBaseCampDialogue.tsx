@@ -5,14 +5,19 @@ import { AppDispatch, RootState } from '../../../redux/store';
 import { loadChangeBaseCampModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { Entypo } from '@expo/vector-icons';
 import GradientButtonOne from '../GradientButtonOne';
-import { assignUserCamp, changeUserCamp } from '../../../query/camp/functions';
+import { assignUserCamp, changeUserCamp, validateCampApiFunction } from '../../../query/camp/functions';
 import Toast from 'react-native-toast-message';
+import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 
 const ChangeBaseCampDialogue = () => {
 
     const modalVisible = useSelector((state: RootState) => state.remoteModals.changeBaseCampModal);
     const currentUserData = useSelector((state: RootState) => state.authentication.user_data);
     const authToken = useSelector((state: RootState) => state.authentication.token);
+
+    const locationData = useSelector((state: RootState) => state.networkData.location_info);
 
     const dispatch = useDispatch<AppDispatch>()
     const toggleModal = () => {
@@ -44,10 +49,17 @@ const ChangeBaseCampDialogue = () => {
                                             type: "info",
                                             text1: `${response?.message}`
                                         })
-                                        toggleModal()
                                     }
+                                    const res = await validateCampApiFunction(locationData?.SG?.location_id, locationData?.SG?.client_mac, authToken);
+                                    dispatch(loadUserData(JSON.stringify(res.data.user_data)));
+                                    await AsyncStorage.setItem('user_data', JSON.stringify(res.data.user_data));
+                                    dispatch(loadToken(res.data.token));
+                                    await dispatch(refetchUserMembershipDetails(res.data.token));
                                 } catch (error) {
                                     console.log(error)
+                                } finally {
+                                    dispatch(loadLoadingModal(false));
+                                    toggleModal();
                                 }
                             }
                         },
@@ -81,10 +93,17 @@ const ChangeBaseCampDialogue = () => {
                                             type: "info",
                                             text1: `${response?.message}`
                                         })
-                                        toggleModal()
                                     }
+                                    const res = await validateCampApiFunction(locationData?.SG?.location_id, locationData?.SG?.client_mac, authToken);
+                                    dispatch(loadUserData(JSON.stringify(res.data.user_data)));
+                                    await AsyncStorage.setItem('user_data', JSON.stringify(res.data.user_data));
+                                    dispatch(loadToken(res.data.token));
+                                    await dispatch(refetchUserMembershipDetails(res.data.token));
                                 } catch (error) {
                                     console.log(error)
+                                } finally {
+                                    dispatch(loadLoadingModal(false));
+                                    toggleModal();
                                 }
                             }
                         },
@@ -111,14 +130,21 @@ const ChangeBaseCampDialogue = () => {
                             try {
                                 const response = await assignUserCamp(currentUserData?.location_camp?.location_camp_id, authToken);
                                 if (response) {
-                                    toggleModal()
                                     Toast.show({
                                         type: "info",
                                         text1: `${response?.message}`
                                     })
                                 }
+                                const res = await validateCampApiFunction(locationData?.SG?.location_id, locationData?.SG?.client_mac, authToken);
+                                dispatch(loadUserData(JSON.stringify(res.data.user_data)));
+                                await AsyncStorage.setItem('user_data', JSON.stringify(res.data.user_data));
+                                dispatch(loadToken(res.data.token));
+                                await dispatch(refetchUserMembershipDetails(res.data.token));
                             } catch (error) {
                                 console.log(error)
+                            } finally {
+                                dispatch(loadLoadingModal(false));
+                                toggleModal();
                             }
                         }
                     },
@@ -158,14 +184,14 @@ const ChangeBaseCampDialogue = () => {
                                         {!currentUserData?.location_camp?.location_camp_id && <View style={styles.error_display}>
                                             <Text style={styles.error_text}>You should be connected to camp wifi from camp</Text>
                                         </View>}
-                                        {currentUserData?.location_camp?.location_camp_id == currentUserData?.base_camp_id && <View style={styles.error_display}>
-                                            <Text style={styles.error_text}>You are at your base camp.</Text>
+                                        {currentUserData?.location_camp?.location_camp_id && (currentUserData?.location_camp?.location_camp_id == currentUserData?.base_camp_id) && <View style={styles.error_display}>
+                                            <Text style={styles.error_text}>This is camp is already your base camp.</Text>
                                         </View>}
                                     </View>
                                     {currentUserData?.location_camp?.location_camp_id && (currentUserData?.location_camp?.location_camp_id != currentUserData?.base_camp_id)
                                         ?
                                         <View>
-                                            <GradientButtonOne style={{ borderRadius: 10 }} colors={['#4AF4CF', '#00C9A3']}>
+                                            <GradientButtonOne onPress={handleSubmitCampId} style={{ borderRadius: 10 }} colors={['#4AF4CF', '#00C9A3']}>
                                                 <Text style={styles.action_text}>Set this camp as base camp</Text>
                                             </GradientButtonOne>
                                         </View>
@@ -189,7 +215,7 @@ const styles = StyleSheet.create({
     camp_details_view: { backgroundColor: 'white', borderRadius: 10, padding: 15, marginBottom: 10 },
     camp_details_title: { fontSize: 12, textAlign: 'center' },
     camp_details_camp_name: { fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 },
-    error_display: { backgroundColor: '#EF9995', padding: 2, paddingHorizontal: 10, borderRadius: 10 },
+    error_display: { backgroundColor: '#EF9995', padding: 2, paddingHorizontal: 10, borderRadius: 10,marginBottom: 5 },
     error_text: { fontWeight: 'bold', fontSize: 12, textAlign: 'center' },
     action_text: { color: "white", fontWeight: 'bold', textShadowColor: 'black', textShadowOffset: { width: 0.6, height: 0.6 }, textShadowRadius: 1 },
     container: {

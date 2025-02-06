@@ -12,6 +12,7 @@ import { useValidateCamp } from '../../../query/camp/queries';
 import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
 import { clearAll, refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { validateCampApiFunction } from '../../../query/camp/functions';
 
 const FetchEssentials = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -108,13 +109,15 @@ const FetchEssentials = () => {
         try {
             dispatch(loadLoadingModal(true));
             if(!locationInformation) return;
-            console.log("Validating Camp...")
-            const response = await validateCamp({
-                camp_id: locationInformation?.SG?.location_id,
-                client_mac: locationInformation?.SG?.client_mac,
-                token: authToken,
-            });
-            console.log("Validate camp result", response)
+            // console.log("Validating Camp...");
+            // console.log("LocationInfo: ", locationInformation);
+            // console.log("token", authToken)
+            const response = await validateCampApiFunction(
+                locationInformation?.SG?.location_id,
+                locationInformation?.SG?.client_mac,
+                authToken
+            );
+            console.log("Validate camp result: \n", response)
             if (!response?.data) throw new Error("[VALIDATE CAMP] Response Data Not Found");
             dispatch(loadUserData(JSON.stringify(response.data.user_data)));
             await AsyncStorage.setItem('user_data', JSON.stringify(response.data.user_data))

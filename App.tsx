@@ -44,7 +44,7 @@ export default function App() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setShowSplashScreen(false);
-    }, 4000);
+    }, 5000);
     return () => clearTimeout(timeout);
   }, []);
 

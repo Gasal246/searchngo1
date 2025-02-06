@@ -21,6 +21,8 @@ const SideBar = () => {
   const language = useSelector((state: RootState) => state.language.language);
   const { ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
 
+  // what if I passes useEffect of modal Visibility to Animated constant is null; if and to value 0
+
   useEffect(() => {
     if (modalVisible) {
       Animated.spring(slideAnim, {
@@ -40,6 +42,13 @@ const SideBar = () => {
     console.log("Location Data On Click :", ld.payload);
     dispatch(loadConnectionModal(true));
     setModalVisible(false)
+  }
+
+  const handleOpenBaseCampModel = async () => {
+    const ld = await dispatch(fetchLocationData(currentSSID));
+    console.log("Location info on camp change model: ", ld.payload);
+    dispatch(loadChangeBaseCampModal(true));
+    setModalVisible(false);
   }
 
   const logoutFunction = async () => {
@@ -120,12 +129,7 @@ const SideBar = () => {
                       <Text style={styles.link_text}>{translations[language].change_mob_number}</Text>
                       {orientation == 'right' && <Entypo name="old-phone" size={20} color="black" />}
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                      setModalVisible(false);
-                      dispatch(loadChangeBaseCampModal(true));
-                    }}
-                      style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]}
-                    >
+                    <TouchableOpacity onPress={handleOpenBaseCampModel} style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]}>
                       {orientation == 'left' && <Entypo name="location" size={18} color="black" />}
                       <Text style={styles.link_text}>{translations[language].change_service_location}</Text>
                       {orientation == 'right' && <Entypo name="location" size={18} color="black" />}

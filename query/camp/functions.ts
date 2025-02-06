@@ -38,3 +38,33 @@ export async function getCampByCampId ( campId: string, token: string ) {
     }
 }
 
+export async function assignUserCamp ( campId: string, token: string ) {
+    try {
+        const res = await axiosInstance.post(`/users/camps/assign-user-camp`, {
+            camp_id: campId
+        }, {
+            headers: {
+                Authorization: formatBearerToken(token)
+            }
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function changeUserCamp ( campId: string, token: string ) {
+    try {
+        const res = await axiosInstance.post(`/users/camps/change-user-camp`, {
+            camp_id: campId
+        }, {
+            headers: {
+                Authorization: formatBearerToken(token)
+            }
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+

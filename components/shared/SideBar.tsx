@@ -5,13 +5,12 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { BlurView } from 'expo-blur';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadConnectionModal } from '../../redux/slices/remoteModalSlice';
+import { loadChangeBaseCampModal, loadConnectionModal } from '../../redux/slices/remoteModalSlice';
 import { loadLogoutApp } from '../../redux/slices/appAuthenticationSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { translations } from '../../lib/translations';
 import { AppDispatch, RootState } from '../../redux/store';
 import { fetchLocationData } from '../../redux/slices/NetworkSlice';
-import NetInfo from '@react-native-community/netinfo';
 
 const SideBar = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -121,7 +120,12 @@ const SideBar = () => {
                       <Text style={styles.link_text}>{translations[language].change_mob_number}</Text>
                       {orientation == 'right' && <Entypo name="old-phone" size={20} color="black" />}
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]}>
+                    <TouchableOpacity onPress={() => {
+                      setModalVisible(false);
+                      dispatch(loadChangeBaseCampModal(true));
+                    }}
+                      style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]}
+                    >
                       {orientation == 'left' && <Entypo name="location" size={18} color="black" />}
                       <Text style={styles.link_text}>{translations[language].change_service_location}</Text>
                       {orientation == 'right' && <Entypo name="location" size={18} color="black" />}

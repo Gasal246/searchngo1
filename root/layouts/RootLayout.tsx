@@ -5,7 +5,7 @@ import ConnectionModal from '../../components/shared/Connection/ConnectionModal'
 import SideBar from '../../components/shared/SideBar';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadQRModal } from '../../redux/slices/remoteModalSlice';
+import { loadChangeBaseCampModal, loadQRModal } from '../../redux/slices/remoteModalSlice';
 import ConnectionQR from '../../components/shared/Connection/ConnectionQR';
 import { AppDispatch, RootState } from '../../redux/store';
 import FetchEssentials from '../../components/shared/Connection/FetchEssentials';
@@ -17,7 +17,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         if(user_data?.is_new_user) {
-
+            dispatch(loadChangeBaseCampModal(true));
+        }
+        if(!user_data?.baseCampAvailable) {
+            dispatch(loadChangeBaseCampModal(true));
         }
     }, [user_data])
 

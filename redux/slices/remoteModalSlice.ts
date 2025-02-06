@@ -29,7 +29,6 @@ const remoteModalSlice = createSlice({
         },
         loadChangeBaseCampModal: (state, action: PayloadAction<boolean>) => {
             state.changeBaseCampModal = action.payload;
-            console.log("Dispatched ", action.payload)
         },
     }
 })

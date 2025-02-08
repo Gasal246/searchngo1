@@ -29,8 +29,8 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
             <ConnectionModal />
             <ConnectionQR />
             <ChangeBaseCampDialogue />
-            <View style={styles.topbar_flex_container}>
                 <FetchEssentials />
+            <View style={styles.topbar_flex_container}>
                 <SideBar />
                 <View style={styles.center_logo}>
                     <Image source={require("../../assets/images/png/sngcolor.png")} style={{ width: 60, height: 70, objectFit: "contain" }} />

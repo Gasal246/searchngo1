@@ -21,6 +21,10 @@ const SideBar = () => {
   const language = useSelector((state: RootState) => state.language.language);
   const { ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
 
+  useEffect(() => {
+    if(currentSSID) console.log(currentSSID)
+  }, [currentSSID])
+
   // what if I passes useEffect of modal Visibility to Animated constant is null; if and to value 0
 
   useEffect(() => {
@@ -137,7 +141,7 @@ const SideBar = () => {
                   </View>
                   <View style={styles.section}>
                     <Text style={styles.section_title}>{translations[language].application}</Text>
-                    <TouchableOpacity style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]}>
+                    <TouchableOpacity style={[styles.link_option, orientation == 'right' && styles.link_option_rtl]} onPress={() => handleNavigation('LogScreen')}>
                       {orientation == 'left' && <SimpleLineIcons name="docs" size={18} color="black" />}
                       <Text style={styles.link_text}>{translations[language].logs}</Text>
                       {orientation == 'right' && <Entypo name="location" size={18} color="black" />}

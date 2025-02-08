@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store';
 import NetInfo from '@react-native-community/netinfo';
 import { fetchLocationData, storeSSID } from '../../../redux/slices/NetworkSlice';
 import Toast from 'react-native-toast-message';
-import { requestLocationPermission } from '../../../lib/utils';
 import { useNavigation } from '@react-navigation/native';
 import { loadConnectionModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { useValidateCamp } from '../../../query/camp/queries';
@@ -13,6 +12,7 @@ import { loadToken, loadUserData } from '../../../redux/slices/appAuthentication
 import { clearAll, refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { validateCampApiFunction } from '../../../query/camp/functions';
+import { saveLog } from '../../../lib/utils';
 
 const FetchEssentials = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -65,6 +65,8 @@ const FetchEssentials = () => {
             const wifiState: any = await NetInfo.fetch('wifi');
             const ssId = wifiState?.details?.ssid?.toUpperCase();
 
+            await AsyncStorage.setItem("store_ssid", ssId);
+
             if (ssId?.split('_')[0] !== 'SG') {
                 locationInformation = null;
                 throw new Error('not a SG network!');
@@ -73,6 +75,7 @@ const FetchEssentials = () => {
             if (!ssId || ssId === currentSSID) return;
 
             console.log("Storing Current SSID: ", ssId)
+            await saveLog("Storing_current_SSID", ssId)
             dispatch(storeSSID(ssId));
             if (ssId.split('_')[0] === 'SG') {
                 console.log("Fetching Location...");
@@ -80,7 +83,8 @@ const FetchEssentials = () => {
                 if (!locationInformation) {
                     const data = await dispatch(fetchLocationData(ssId));
                     locationInformation = data.payload;
-                    console.log("Location Data: ", data.payload);
+                    console.log("Location Data", data.payload);
+                    await saveLog("locaion_saved", locationInformation);
                 } else {
                     console.log("Already Have Location Info: ", locationInformation);
                 }
@@ -117,14 +121,21 @@ const FetchEssentials = () => {
                 locationInformation?.SG?.client_mac,
                 authToken
             );
-            console.log("Validate camp result: \n", response)
-            if (!response?.data) throw new Error("[VALIDATE CAMP] Response Data Not Found");
+            console.log("Validate camp result: \n", response);
+            await saveLog("camp_validation_result", response);
+
+            if (!response?.data) {
+                await saveLog("camp_validation_error:", "[VALIDATE CAMP] Response Data Not Found")
+                throw new Error("[VALIDATE CAMP] Response Data Not Found");
+            }
+
             dispatch(loadUserData(JSON.stringify(response.data.user_data)));
             await AsyncStorage.setItem('user_data', JSON.stringify(response.data.user_data))
             dispatch(loadToken(response.data.token));
             await dispatch(refetchUserMembershipDetails(response.data.token));
         } catch (error) {
             showErrorToast('Validation Error', 'Failed to validate camp.');
+            await saveLog("failed_camp_validation", `${error}`);
             console.error('Error validating camp:', error);
         } finally {
             dispatch(loadLoadingModal(false));

@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PermissionsAndroid, Platform } from "react-native";
 const moment = require('moment');
 
@@ -53,3 +54,12 @@ export const convertIsoToUnixMinutes = (
     return unixSeconds;
   };
   
+
+export const saveLog = async (key: string, value: string) => {
+    let val: any = {};
+    val[key] = value;
+    const previousLogsString = await AsyncStorage.getItem('logs')
+    const previousLogs = previousLogsString ? JSON.parse(previousLogsString) : {}
+    await AsyncStorage.setItem('logs', JSON.stringify({...previousLogs, ...val}))
+}
+

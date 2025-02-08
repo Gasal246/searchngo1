@@ -34,6 +34,7 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUpdateExpoPushToken } from './query/userqueries/queries';
 import { updateExpoPushToken } from './query/userqueries/functions';
+import LogScreen from './root/screens/LogScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -163,6 +164,9 @@ export default function App() {
                   backgroundColor: "#222831"
                 }
               }}>
+                <Stack.Screen name="LogScreen" component={LogScreen} options={{
+                  headerShown: true,
+                }} />
                 <Stack.Screen name="MembershipHistory" component={MembershipHistory} options={{
                   headerShown: false,
                 }} />

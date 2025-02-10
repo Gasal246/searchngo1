@@ -13,4 +13,5 @@ declare type RootStackParamList = {
   MembershipHistory: undefined;
   WaterPlus: undefined;
   LogScreen: undefined;
+  ResponsePage: undefined;
 };

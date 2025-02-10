@@ -6,6 +6,7 @@ import remoteModalReducer from './slices/remoteModalSlice';
 import networkDataReducer from './slices/NetworkSlice';
 import membershipDataReducer from './slices/membershipDetails';
 import campReducer from './slices/campSlice';
+import logsReducer from './slices/logSlice';
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
     remoteModals: remoteModalReducer,
     networkData: networkDataReducer,
     membership: membershipDataReducer,
-    camp: campReducer
+    camp: campReducer,
+    logs: logsReducer
   },
 });
 

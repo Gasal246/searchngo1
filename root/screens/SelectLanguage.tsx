@@ -20,7 +20,7 @@ const SelectLanguage = () => {
     const handleContinueFunction = async () => {
         const data = await getVerifiedData();
         if(data){
-            navigation.goBack();
+            navigation.navigate('Services')
         }else{
             navigation.navigate('MobileVerification');
         }

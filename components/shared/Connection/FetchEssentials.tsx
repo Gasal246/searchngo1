@@ -13,15 +13,17 @@ import { clearAll, refetchUserMembershipDetails } from '../../../redux/slices/me
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { validateCampApiFunction } from '../../../query/camp/functions';
 import { saveLog } from '../../../lib/utils';
+import { storeLog } from '../../../redux/slices/logSlice';
+import { fetchLocation } from '../../../query/networkqueries/functions';
 
 const FetchEssentials = () => {
     const dispatch = useDispatch<AppDispatch>();
     const navigation = useNavigation<any>();
-    const [hasInitialized, setHasInitialized] = useState(false); // Prevent multiple executions
+    const [hasInitialized, setHasInitialized] = useState(false);
     const { location_info: locationData, ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
     const { token: authToken } = useSelector((state: RootState) => state.authentication);
     const { mutateAsync: validateCamp } = useValidateCamp();
-    let locationInformation: any = undefined;
+    const [locationinformation, setLocationInformation] = useState<any>(null);
 
     const showErrorToast = useCallback((title: string, message: string) => {
         Toast.show({
@@ -37,11 +39,8 @@ const FetchEssentials = () => {
                 PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
             );
 
-            if (alreadyGranted) {
-                return true; // Permission is already granted
-            }
+            if (alreadyGranted) return true;
 
-            // Request permission if not already granted
             const granted = await PermissionsAndroid.request(
                 PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
                 {
@@ -57,109 +56,101 @@ const FetchEssentials = () => {
         return true;
     }, [navigation]);
 
-    const handleNetworkChange = useCallback(
-        async (state: any) => {
-            if (!await handleLocationPermission()) return;
-            console.log("Executing Network Change...");
-
-            const wifiState: any = await NetInfo.fetch('wifi');
-            const ssId = wifiState?.details?.ssid?.toUpperCase();
-
-            await AsyncStorage.setItem("store_ssid", ssId);
-
-            if (ssId?.split('_')[0] !== 'SG') {
-                locationInformation = null;
-                throw new Error('not a SG network!');
-            }
-
-            if (!ssId || ssId === currentSSID) return;
-
-            console.log("Storing Current SSID: ", ssId)
-            await saveLog("Storing_current_SSID", ssId)
-            dispatch(storeSSID(ssId));
-            if (ssId.split('_')[0] === 'SG') {
-                console.log("Fetching Location...");
-                dispatch(loadLoadingModal(true));
-                if (!locationInformation) {
-                    const data = await dispatch(fetchLocationData(ssId));
-                    locationInformation = data.payload;
-                    console.log("Location Data", data.payload);
-                    await saveLog("locaion_saved", locationInformation);
-                } else {
-                    console.log("Already Have Location Info: ", locationInformation);
-                }
-                dispatch(loadConnectionModal(true));
-                dispatch(loadLoadingModal(false));
-            }
-        },
-        [currentSSID, dispatch, handleLocationPermission, locationData]
-    );
-
-    const handleValidateCampFunction = useCallback(async () => {
-        console.log("Handle Validating Camp...");
-        if (!locationInformation && currentSSID?.split('_')[0] === 'SG') {
-            dispatch(loadLoadingModal(true));
-            const data = await dispatch(fetchLocationData(currentSSID));
-            locationInformation = data.payload;
+    const handleFetchLocationInformation = async (ssid: string) => {
+        console.log("Fetching location info...");
+        dispatch(loadLoadingModal(true));
+        try {
+            const res = await fetchLocation(ssid);
+            dispatch(storeSSID(ssid)); // Update Redux with the new SSID
+            dispatch(fetchLocationData(res)); // Assume this action stores location data
+            setLocationInformation(res);
+            console.log(res)
+            dispatch(storeLog({ key: 'fetched_location_information_state', value: res }));
+            return res;
+        } catch (error) {
+            console.log(error);
+            dispatch(storeLog({ key: 'location_fetch_error', value: error }));
+            throw error;
+        } finally {
             dispatch(loadLoadingModal(false));
         }
+    };
 
+    const handleNetworkChange = async () => {
+        if (!await handleLocationPermission()) return;
+        console.log("Executing Network Change...");
+        dispatch(storeLog({ key: 'executing_network_change', value: true }));
+
+        const wifiState: any = await NetInfo.fetch('wifi');
+        const ssId = wifiState?.details?.ssid?.toUpperCase();
+
+        await AsyncStorage.setItem("store_ssid", ssId);
+        dispatch(storeLog({ key: 'stored_ssid', value: ssId }));
+
+        try {
+            const locationInfo = await handleFetchLocationInformation(ssId);
+            if (!locationInfo) {
+                showErrorToast('Error', 'Failed to fetch location information');
+                return;
+            }
+
+            if (ssId?.split('_')[0] !== 'SG') {
+                dispatch(storeLog({ key: 'invalid_ssid', value: 'Not an SG network' }));
+                setLocationInformation(null);
+                return;
+            }
+
+            await handleValidateCampFunction(ssId, locationInfo);
+        } catch (error) {
+            console.error('Network change error:', error);
+        }
+    };
+
+    const handleValidateCampFunction = async (ssid: string, locationInfo: any) => {
         if (!authToken) {
             console.log("NO AUTH TOKEN");
+            dispatch(storeLog({ key: 'missing_auth_token', value: 'Token not found' }));
             showErrorToast('Token Missing', "Access Denied!");
             return;
         }
 
+        console.log("Validating Camp...");
+        dispatch(storeLog({ key: 'validating_camp', value: true }));
+        dispatch(loadLoadingModal(true));
+
         try {
-            dispatch(loadLoadingModal(true));
-            if(!locationInformation) return;
-            // console.log("Validating Camp...");
-            // console.log("LocationInfo: ", locationInformation);
-            // console.log("token", authToken)
+            console.log(`location_id: ${locationInfo?.SG?.location_id}\nclient_mac${locationInfo?.SG?.client_mac}`)
             const response = await validateCampApiFunction(
-                locationInformation?.SG?.location_id,
-                locationInformation?.SG?.client_mac,
+                locationInfo?.SG?.location_id,
+                locationInfo?.SG?.client_mac,
                 authToken
             );
-            console.log("Validate camp result: \n", response);
-            await saveLog("camp_validation_result", response);
 
             if (!response?.data) {
-                await saveLog("camp_validation_error:", "[VALIDATE CAMP] Response Data Not Found")
-                throw new Error("[VALIDATE CAMP] Response Data Not Found");
+                console.log(response?.message)
+                await saveLog("camp_validation_error", "Response data not found");
+                throw new Error("Validation failed: No data received");
             }
 
+            dispatch(storeLog({ key: 'camp_validation_response', value: response }));
             dispatch(loadUserData(JSON.stringify(response.data.user_data)));
-            await AsyncStorage.setItem('user_data', JSON.stringify(response.data.user_data))
+            await AsyncStorage.setItem('user_data', JSON.stringify(response.data.user_data));
             dispatch(loadToken(response.data.token));
             await dispatch(refetchUserMembershipDetails(response.data.token));
         } catch (error) {
             showErrorToast('Validation Error', 'Failed to validate camp.');
-            await saveLog("failed_camp_validation", `${error}`);
-            console.error('Error validating camp:', error);
+            console.error('Camp validation error:', error);
         } finally {
             dispatch(loadLoadingModal(false));
         }
-    }, [authToken, currentSSID, dispatch, locationInformation, showErrorToast, validateCamp]);
+    };
 
     const initialize = useCallback(async () => {
-        if (hasInitialized) return; // Prevent re-initialization
-        dispatch(clearAll()); // clearing all existing membership details
+        if (hasInitialized) return;
+        dispatch(clearAll());
         setHasInitialized(true);
 
-        const unsubscribe = NetInfo.addEventListener(async (state) => {
-            await handleNetworkChange(state).then(async () => {
-                await handleValidateCampFunction();
-            })
-            .catch((error: any) => {
-                console.log(error);
-                // return Toast.show({
-                //     type: "info",
-                //     text1: "Network Failure",
-                //     text2: "connect to camp wifi to get all services"
-                // })
-            });
-        });
+        const unsubscribe = NetInfo.addEventListener(handleNetworkChange);
 
         return () => {
             unsubscribe();
@@ -168,7 +159,7 @@ const FetchEssentials = () => {
 
     useEffect(() => {
         initialize();
-    }, [initialize, currentSSID]);
+    }, []);
 
     return null;
 };

@@ -12,6 +12,7 @@ import Toast from 'react-native-toast-message';
 import { refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import { fetchUserWallet } from '../../../redux/slices/appAuthenticationSlice';
 import { useNavigation } from '@react-navigation/native';
+import { purchaseNewMembership } from '../../../query/membership/functions';
 
 const AvailableMembership = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -21,7 +22,7 @@ const AvailableMembership = () => {
   const { mutateAsync: getInternetPackages, isPending: pendingInternetPackages } = useGetCampInternetPackages();
   const { mutateAsync: purchaseMembership } = usePurchaseNewMembership();
   const [packages, setPackages] = useState<any[]>([]);
-  const currentSSID = useSelector((state: RootState) => state.networkData.ssid);;
+  const currentSSID = useSelector((state: RootState) => state.networkData.ssid);
 
   useEffect(() => {
     if (!token) return;
@@ -39,6 +40,7 @@ const AvailableMembership = () => {
       try {
         dispatch(loadLoadingModal(true));
         const response = await getInternetPackages({ token });
+        await dispatch(refetchUserMembershipDetails(token!));
         setPackages(response?.data?.list || []);
       } catch (error) {
         console.error("Error fetching internet packages:", error);
@@ -51,7 +53,7 @@ const AvailableMembership = () => {
   }, [token]);
 
   const handlePurchaseClick = async (plan: any) => {
-    if (upcomingMembership) {
+    if (upcomingMembership?.length > 0) {
       Alert.alert("Already Have an Upcoming Plan", "make sure you don't have an upcoming membership plan before purchasing new one.")
     } else {
       Alert.alert(
@@ -78,7 +80,8 @@ const AvailableMembership = () => {
   const handlePurchaseInternetPackage = async (packageId: string) => {
     dispatch(loadLoadingModal(true))
     try {
-      const response = await purchaseMembership({ payload: { package_id: packageId }, token: token! });
+      console.log(token, packageId)
+      const response = await purchaseNewMembership({ package_id: packageId }, token! );
       await dispatch(refetchUserMembershipDetails(token!));
       console.log("Purchased Membership", response)
       if (response?.status == 200) {

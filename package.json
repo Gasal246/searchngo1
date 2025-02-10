@@ -23,6 +23,7 @@
     "expo-image": "~1.13.0",
     "expo-image-manipulator": "~12.0.5",
     "expo-linear-gradient": "^13.0.2",
+    "expo-location": "^18.0.5",
     "expo-notifications": "^0.28.19",
     "expo-status-bar": "~1.12.1",
     "form-data": "^4.0.1",

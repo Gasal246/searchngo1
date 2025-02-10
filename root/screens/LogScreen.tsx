@@ -1,25 +1,31 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 const LogScreen = () => {
-    const [logs, setLogs] = useState<any>();
 
-    const getAsyncLog = async () => {
-        const res = await AsyncStorage.getItem('logs');
-        // const jslog = await JSON.parse(res ?? '{ "error": true }');
-        setLogs(res)
-    }
+    const { logger: logs } = useSelector((state: RootState) => state.logs);
 
-    useEffect(() => {
-        getAsyncLog();
-    }, [])
+    const renderItem = ({ item }: { item: { [key: string]: any } }) => {
+        const key = Object.keys(item)[0];
+        const value = item[key];
+        return (
+          <View style={{ padding: 10, borderBottomWidth: 1 }}>
+            <Text style={{ fontWeight: 'bold', color: 'blue' }}>{key}:</Text>
+            <Text style={{ color: 'black'}}>{JSON.stringify(value)}</Text>
+          </View>
+        );
+      };
 
     return (
         <View style={{ backgroundColor: 'white', width: '100%', flex: 1}}>
-            <Text style={{ color: 'black' }}>
-                {logs}
-            </Text>
+            <FlatList
+                data={logs}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => index?.toString()}
+            />
         </View>
     );
 }

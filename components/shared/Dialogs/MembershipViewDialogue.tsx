@@ -90,7 +90,7 @@ const MembershipViewDialogue = ({ children, details }: { children: React.ReactNo
                                                 <Text style={styles.package_detail_value_white}>{formatDateString(details?.package_start_date)}</Text>
                                             </View>
                                             <View style={styles.package_detail_five}>
-                                                <Text style={styles.package_detail_key_white}>{translations[language].expire_on}</Text>
+                                                <Text style={styles.package_detail_key_white}>{details?.order_status == 3 ? translations[language].expire_on : "Exipired On"}</Text>
                                                 <Text style={styles.package_detail_value_white}>{formatDateString(details?.package_expiry_date)}</Text>
                                             </View>
                                             {/* {details?.order_status == 2 &&
@@ -101,7 +101,7 @@ const MembershipViewDialogue = ({ children, details }: { children: React.ReactNo
                                             } */}
                                         </View>
                                     </View>
-                                    {details?.order_status == 2 && <View style={styles.purchase_btn_wrapper}>
+                                    {details?.order_status == 3 && <View style={styles.purchase_btn_wrapper}>
                                         <View style={styles.purchase_btn}>
                                             <GradientButtonOne
                                                 colors={["#4EFBE6", "#5AE7A6"]}

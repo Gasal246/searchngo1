@@ -125,7 +125,7 @@ const SideBar = () => {
         onRequestClose={() => setModalVisible(false)}
       >
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <BlurView intensity={60} tint="dark" style={styles.modalOverlay}>
+          <BlurView experimentalBlurMethod="dimezisBlurView" intensity={60} tint="dark" style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
               <Animated.View
                 style={[

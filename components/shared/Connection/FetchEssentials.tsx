@@ -60,7 +60,7 @@ const FetchEssentials = () => {
         console.log("Fetching location info...");
         dispatch(loadLoadingModal(true));
         try {
-            const res = await fetchLocation(ssid);
+            const res: any = await fetchLocation(ssid);
             dispatch(storeSSID(ssid)); // Update Redux with the new SSID
             dispatch(fetchLocationData(res)); // Assume this action stores location data
             setLocationInformation(res);

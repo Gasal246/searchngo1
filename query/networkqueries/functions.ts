@@ -7,8 +7,11 @@ export async function fetchLocation(ssid: string) {
         // console.log("SSID passed: ", ssid)
         if (ssplit[0] != 'SG') return { outside: true };
         if(ssplit[ssplit.length - 1] == "AL") {
-            const res = await axios.get('http://gateway.searchngo.app/www/pub/login/user_info/?op=device_info');
-            return res.data;
+            const res = await fetch('https://gateway.searchngo.app/www/pub/login/user_info/?op=device_info', {
+                method: 'GET',
+                redirect: 'follow' // Ensures redirects are followed
+              });
+            return res.json();
         } else if (ssplit[ssplit.length - 1] == "TX") {
             console.log("####### ___YOU HAVEN'T SETUPED A TX LOCATION API___ #######")
         } else {

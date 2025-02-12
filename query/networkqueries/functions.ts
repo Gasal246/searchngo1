@@ -7,7 +7,7 @@ export async function fetchLocation(ssid: string) {
         // console.log("SSID passed: ", ssid)
         if (ssplit[0] != 'SG') return { outside: true };
         if(ssplit[ssplit.length - 1] == "AL") {
-            const res = await fetch('https://gateway.searchngo.app/www/pub/login/user_info/?op=device_info', {
+            const res = await fetch('https://ezxcess.searchngo.app/www/pub/login/user_info/?op=device_info', {
                 method: 'GET',
                 redirect: 'follow' // Ensures redirects are followed
               });
@@ -38,7 +38,7 @@ export async function fetchLocation(ssid: string) {
     }
 }
 
-const loginConnectApi = 'http://gateway.searchngo.app/www/pub/login/connect/';
+const loginConnectApi = 'https://ezxcess.searchngo.app/www/pub/login/connect/';
 
 export async function connectInternetFunction(formData: object, token: string) {
     try {

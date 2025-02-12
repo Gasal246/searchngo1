@@ -10,6 +10,7 @@ import Toast from 'react-native-toast-message';
 import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
+import { BlurView } from 'expo-blur';
 
 const ChangeBaseCampDialogue = () => {
 
@@ -169,7 +170,7 @@ const ChangeBaseCampDialogue = () => {
                 visible={modalVisible}
             >
                 <TouchableWithoutFeedback onPress={toggleModal}>
-                    <View style={styles.modalOverlay}>
+                    <BlurView experimentalBlurMethod="dimezisBlurView" intensity={60} tint="dark" style={styles.modalOverlay}>
                         <TouchableOpacity style={styles.close_button} onPress={toggleModal}>
                             <Entypo name="cross" size={28} color="white" />
                         </TouchableOpacity>
@@ -197,14 +198,14 @@ const ChangeBaseCampDialogue = () => {
                                         </View>
                                         :
                                         <View>
-                                            <GradientButtonOne onPress={toggleModal} style={{ borderRadius: 10 }} colors={['#DC8850', '#EF9995']}>
+                                            <GradientButtonOne onPress={toggleModal} style={{ borderRadius: 10 }} colors={['#F35248', '#F35248']}>
                                                 <Text style={styles.action_text}>Cancel Setup</Text>
                                             </GradientButtonOne>
                                         </View>}
                                 </View>
                             </View>
                         </TouchableWithoutFeedback>
-                    </View>
+                    </BlurView>
                 </TouchableWithoutFeedback>
             </Modal>
         </View>
@@ -215,8 +216,11 @@ const styles = StyleSheet.create({
     camp_details_view: { backgroundColor: 'white', borderRadius: 10, padding: 15, marginBottom: 10 },
     camp_details_title: { fontSize: 12, textAlign: 'center' },
     camp_details_camp_name: { fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 },
-    error_display: { backgroundColor: '#EF9995', padding: 2, paddingHorizontal: 10, borderRadius: 10,marginBottom: 5 },
-    error_text: { fontWeight: 'bold', fontSize: 12, textAlign: 'center' },
+    error_display: { 
+        // backgroundColor: '#EF9995', 
+        padding: 2, paddingHorizontal: 10, borderRadius: 10,marginBottom: 5 
+    },
+    error_text: { fontWeight: 'bold', fontSize: 12, textAlign: 'center', color: "red" },
     action_text: { color: "white", fontWeight: 'bold', textShadowColor: 'black', textShadowOffset: { width: 0.6, height: 0.6 }, textShadowRadius: 1 },
     container: {
         justifyContent: "center",
@@ -235,6 +239,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
+        borderRadius: 10
     },
     modalOverlay: {
         flex: 1,

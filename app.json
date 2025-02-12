@@ -31,15 +31,16 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.gasal246.searchngo1"
+      "package": "com.tektontechnology.searchngo"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "f44a6597-fda6-4f4d-9f2b-82b4bae7b462"
+        "projectId": "8d669bbb-8148-4965-97a3-721ef40658cf"
       }
-    }
+    },
+    "owner": "tektontechnology"
   }
 }

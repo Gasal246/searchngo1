@@ -12,6 +12,8 @@ import { convertIsoToUnixMinutes } from '../../../lib/utils';
 import { fetchCampDetailsByCampId } from '../../../redux/slices/campSlice';
 import { connectInternetFunction } from '../../../query/networkqueries/functions';
 import { fetchLocationData, loadLoginConnectData, storeSSID } from '../../../redux/slices/NetworkSlice';
+import { storeLog } from '../../../redux/slices/logSlice';
+import { BlurView } from 'expo-blur';
 
 const ConnectionModal = () => {
     const modalVisible = useSelector((state: RootState) => state.remoteModals.connectionModal);
@@ -77,8 +79,12 @@ const ConnectionModal = () => {
             data.append('user_ip', locationData?.SG?.client_ip);
             data.append('Auth_Code', camp_details?.router_secret);
 
+            // console.log(data.getAll);
+            // console.log(authToken);
+
             const response = await connectInternetFunction(data, authToken!);
             console.log("Connection Res: ", response);
+            dispatch(storeLog({ key: 'connection_response', value: response }));
             if (response.SG || response?.SG?.Success === 1) {
                 dispatch(loadLoginConnectData(response?.SG));
                 closeModal();
@@ -86,7 +92,7 @@ const ConnectionModal = () => {
                 return Toast.show({
                     type: "success",
                     text1: "Connected",
-                    text2: "You have connected to internet."
+                    text2: "Membership Connected"
                 })
             } else {
                 dispatch(loadLoginConnectData(null))
@@ -106,7 +112,7 @@ const ConnectionModal = () => {
                 visible={modalVisible}
             >
                 <TouchableWithoutFeedback onPress={closeModal}>
-                    <View style={styles.modalOverlay}>
+                    <BlurView experimentalBlurMethod="dimezisBlurView" intensity={60} tint="dark" style={styles.modalOverlay}>
                         <TouchableOpacity style={styles.close_button} onPress={closeModal}>
                             <Entypo name="cross" size={28} color="white" />
                         </TouchableOpacity>
@@ -155,7 +161,7 @@ const ConnectionModal = () => {
                                 </View>
                             </View>
                         </TouchableWithoutFeedback>
-                    </View>
+                    </BlurView>
                 </TouchableWithoutFeedback>
             </Modal>
         </View>
@@ -191,6 +197,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
+        borderRadius: 10
     },
     modalOverlay: {
         flex: 1,

@@ -52,6 +52,8 @@ const FetchEssentials = () => {
                 }
             );
             return granted === PermissionsAndroid.RESULTS.GRANTED;
+        } else if (Platform.OS == 'ios') {
+            // todo: ask ios permission..
         }
         return true;
     }, [navigation]);

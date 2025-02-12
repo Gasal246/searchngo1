@@ -8,6 +8,7 @@ import { splitString } from '../../../lib/utils';
 import QRCode from 'react-native-qrcode-svg';
 import { translations } from '../../../lib/translations';
 import TimeCounter from '../utility/TimeCounter';
+import { BlurView } from 'expo-blur';
 
 const ConnectionQR = () => {
     const modalVisible = useSelector((state: RootState) => state.remoteModals.qrModal);
@@ -24,7 +25,7 @@ const ConnectionQR = () => {
                     transparent={true}
                     visible={modalVisible}
                 >
-                    <View style={styles.modalOverlay}>
+                    <BlurView experimentalBlurMethod="dimezisBlurView" intensity={60} tint="dark" style={styles.modalOverlay}>
                         <View style={{ margin: 10, padding: 10}}>
                             <View style={styles.section_header}>
                                 <Text style={styles.section_title}>{translations[language].uuid_qr_title}</Text>
@@ -55,7 +56,7 @@ const ConnectionQR = () => {
                                 </View>}
                             </View>
                         </View>
-                    </View>
+                    </BlurView>
                 </Modal>
             </View>
         </View>

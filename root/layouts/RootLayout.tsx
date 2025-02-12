@@ -16,11 +16,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     const { user_data } = useSelector((state: RootState) => state.authentication);
 
     useEffect(() => {
-        if(user_data?.is_new_user) {
-            dispatch(loadChangeBaseCampModal(true));
-        }
-        if(!user_data?.baseCampAvailable) {
-            dispatch(loadChangeBaseCampModal(true));
+        if(user_data){
+            if(!user_data.baseCampAvailable) {
+                dispatch(loadChangeBaseCampModal(true));
+            }
         }
     }, [user_data])
 

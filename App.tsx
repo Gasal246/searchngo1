@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import NotificationModal from './components/shared/NotificationModal';
 import { createNavigationContainerRef } from '@react-navigation/native';
-import { Platform, StatusBar, StyleSheet } from 'react-native';
+import { Alert, Platform, StatusBar, StyleSheet } from 'react-native';
 import SplashScreen from './components/shared/SplashScreen';
 import SelectLanguage from './root/screens/SelectLanguage';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -44,6 +45,17 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const [userData, setUserData] = useState<any>();
+  const [notificationModal, setNotificationModal] = useState<{
+    visible: boolean;
+    title: string;
+    body: string;
+    data: any | null;
+  }>({
+    visible: false,
+    title: '',
+    body: '',
+    data: null
+  });
 
   useEffect(() => {
     genAndStore();
@@ -77,30 +89,41 @@ export default function App() {
   const setupNotifications = async () => {
     // Configure notification handler for both background and foreground
     Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true
-      }),
+      handleNotification: async () => {
+        return {
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+          shouldRequestPermissions: true,
+          priority: Notifications.AndroidNotificationPriority.MAX
+        };
+      },
     });
+
+    // Request permissions right away
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      console.log('Failed to get push token for push notification!');
+      return;
+    }
 
     // Handle notifications received while app is in foreground
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
       console.log('Notification received in foreground:', notification);
       
-      // If it's a verification request, navigate to verification screen
-      const data = notification.request.content.data;
-      if (data?.screen === 'Verification' && data?.params?.verificationSessionId && data?.params?.userId) {
-        // Small delay to ensure app is ready to navigate
-        setTimeout(() => {
-          if (navigationRef.current) {
-            navigationRef.current.navigate('Verification', {
-              verificationSessionId: data.params.verificationSessionId,
-              userId: data.params.userId
-            });
-          }
-        }, 1000);
-      }
+      // Show the custom modal notification
+      setNotificationModal({
+        visible: true,
+        title: notification.request.content.title || 'New Notification',
+        body: notification.request.content.body || '',
+        data: notification.request.content.data
+      });
     });
 
     // Handle notification responses (clicks)
@@ -170,15 +193,6 @@ export default function App() {
       if (finalStatus !== 'granted') {
         console.log('Failed to get push token for push notification!');
         return;
-      }
-
-      if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-          name: 'default',
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#FF231F7C',
-        });
       }
 
       const token = (await Notifications.getExpoPushTokenAsync({
@@ -306,6 +320,13 @@ export default function App() {
             <LoaderSpin />
             <StatusBar barStyle="light-content" backgroundColor="#222831" />
             <NavigationContainer ref={navigationRef}>
+              <NotificationModal
+                visible={notificationModal.visible}
+                title={notificationModal.title}
+                body={notificationModal.body}
+                data={notificationModal.data}
+                onClose={() => setNotificationModal(prev => ({ ...prev, visible: false }))}
+              />
             {/* initialRouteName={userData?.id ? "Services" : "Language"} */}
               <Stack.Navigator initialRouteName={userData?.id ? "Services" : "Language"} screenOptions={{
                 contentStyle: {

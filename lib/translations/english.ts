@@ -29,7 +29,7 @@ export const english = {
     home_premium_tag: "SG Premium Member",
     home_sub_date: "17 FEB 2022 - 17 MAR 2022",
     home_connectivity: "Connectivity",
-    home_conn_desc: "You're now in our service area! To connect to our services, please confirm below. If you'd like to skip for now, you can choose to do so.",
+    home_conn_desc: "Get connected in seconds! Join SG WiFi and unlock seamless access to our network. Stay online, explore, and enjoy uninterrupted service with just a tap!",
     home_site_title: "You now at",
     home_site_info: "Al Shuwaib Service Area",
     home_skip: "Skip",

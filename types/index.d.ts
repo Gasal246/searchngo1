@@ -15,4 +15,8 @@ declare type RootStackParamList = {
   LogScreen: undefined;
   ResponsePage: undefined;
   TestingPage: undefined;
+  Verification: {
+    verificationSessionId: string;
+    userId: string;
+  };
 };

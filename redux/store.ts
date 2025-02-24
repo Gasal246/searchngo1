@@ -7,6 +7,7 @@ import networkDataReducer from './slices/NetworkSlice';
 import membershipDataReducer from './slices/membershipDetails';
 import campReducer from './slices/campSlice';
 import logsReducer from './slices/logSlice';
+import socketReducer from './slices/socketSlice';
 
 export const store = configureStore({
   reducer: {
@@ -17,7 +18,8 @@ export const store = configureStore({
     networkData: networkDataReducer,
     membership: membershipDataReducer,
     camp: campReducer,
-    logs: logsReducer
+    logs: logsReducer,
+    socket: socketReducer,
   },
 });
 

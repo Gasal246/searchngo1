@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1088906552981",
+    "project_id": "searchngo-69026",
+    "storage_bucket": "searchngo-69026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088906552981:android:44fa515d0fc5a79c965d9c",
+        "android_client_info": {
+          "package_name": "com.tektontechnology.searchngo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHx64lkYQliLb0CgDbAmzq-hlMjqPYl0U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

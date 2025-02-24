@@ -9,7 +9,14 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      },
+      "env": {
+        "EXPO_PUBLIC_PROJECT_ID": "8d669bbb-8148-4965-97a3-721ef40658cf"
+      }
     },
     "production": {
       "autoIncrement": true

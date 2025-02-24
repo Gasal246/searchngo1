@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createNavigationContainerRef } from '@react-navigation/native';
 import { Platform, StatusBar, StyleSheet } from 'react-native';
 import SplashScreen from './components/shared/SplashScreen';
 import SelectLanguage from './root/screens/SelectLanguage';
@@ -8,6 +9,7 @@ import './assets/index.css'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './root/screens/HomeScreen';
+import { NavigationContainerRef } from '@react-navigation/native';
 
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
@@ -25,17 +27,18 @@ import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { setIpAddress } from './lib/constants/appConstants';
-import { getVerifiedData } from './helpers/UserHelper';
 import LoaderSpin from './components/shared/LoaderSpin';
 import AvailableMembership from './root/screens/Membership/AvailableMembership';
 import MembershipHistory from './root/screens/Membership/MembershipHistory';
 import WaterPlus from './root/screens/Services/WaterPlus';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useUpdateExpoPushToken } from './query/userqueries/queries';
 import { updateExpoPushToken } from './query/userqueries/functions';
 import LogScreen from './root/screens/LogScreen';
+import VerificationScreen from './root/screens/VerificationScreen';
+import { SocketProvider } from './context/socketContext';
 
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
@@ -43,11 +46,98 @@ export default function App() {
   const [userData, setUserData] = useState<any>();
 
   useEffect(() => {
+    genAndStore();
+    setupNotifications();
+    handlePendingNavigation();
     const timeout = setTimeout(() => {
       setShowSplashScreen(false);
     }, 5000);
     return () => clearTimeout(timeout);
   }, []);
+
+  const handlePendingNavigation = async () => {
+    try {
+      const pendingNav = await AsyncStorage.getItem('pendingNavigation');
+      if (pendingNav) {
+        const { screen, params } = JSON.parse(pendingNav);
+        // Clear the pending navigation
+        await AsyncStorage.removeItem('pendingNavigation');
+        // Wait for navigation to be ready
+        setTimeout(() => {
+          if (navigationRef.current && screen) {
+            navigationRef.current.navigate(screen, params);
+          }
+        }, 2000);
+      }
+    } catch (error) {
+      console.log('Error handling pending navigation:', error);
+    }
+  };
+
+  const setupNotifications = async () => {
+    // Configure notification handler for both background and foreground
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true
+      }),
+    });
+
+    // Handle notifications received while app is in foreground
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification received in foreground:', notification);
+      
+      // If it's a verification request, navigate to verification screen
+      const data = notification.request.content.data;
+      if (data?.screen === 'Verification' && data?.params?.verificationSessionId && data?.params?.userId) {
+        // Small delay to ensure app is ready to navigate
+        setTimeout(() => {
+          if (navigationRef.current) {
+            navigationRef.current.navigate('Verification', {
+              verificationSessionId: data.params.verificationSessionId,
+              userId: data.params.userId
+            });
+          }
+        }, 1000);
+      }
+    });
+
+    // Handle notification responses (clicks)
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Notification response:', response);
+      const data = response.notification.request.content.data;
+      
+      // Delay navigation slightly to ensure app is ready
+      setTimeout(() => {
+        if (data?.screen === 'Verification' && data?.params?.verificationSessionId && data?.params?.userId) {
+          if (navigationRef.current) {
+            navigationRef.current.navigate(data.screen, {
+              verificationSessionId: data.params.verificationSessionId,
+              userId: data.params.userId
+            });
+          } else {
+            // Store the navigation intent for when app becomes ready
+            AsyncStorage.setItem('pendingNavigation', JSON.stringify({
+              screen: data.screen,
+              params: {
+                verificationSessionId: data.params.verificationSessionId,
+                userId: data.params.userId
+              }
+            }));
+          }
+        }
+      }, 1000);
+    });
+
+    // Register for push notifications
+    await registerForPushNotifications();
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  };
 
   async function genAndStore() {
     try {
@@ -63,35 +153,91 @@ export default function App() {
   }
 
   const registerForPushNotifications = async () => {
+    console.log('Registering for push notifications...');
     const user_data = await AsyncStorage.getItem('user_data');
     setUserData(user_data ? JSON.parse(user_data) : null);
     if (!user_data) return;
-    const expo_push_token = await AsyncStorage.getItem('expo-push-token');
-    if (expo_push_token) return;
+
     try {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      
+      if (finalStatus !== 'granted') {
+        console.log('Failed to get push token for push notification!');
+        return;
+      }
+
       if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
           name: 'default',
           importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
         });
       }
-      const token = (await Notifications.getExpoPushTokenAsync()).data;
+
+      const token = (await Notifications.getExpoPushTokenAsync({
+        projectId: "8d669bbb-8148-4965-97a3-721ef40658cf"
+      })).data;
+      
+      console.log('Push token:', token);
       await AsyncStorage.setItem('expo-push-token', token);
+      
       const userToken = await AsyncStorage.getItem('user_token');
       const response = await updateExpoPushToken({
         expo_push_token: token
       }, userToken ? userToken : '');
+
       if(!response || response?.error) {
-        await AsyncStorage.removeItem('expo-push-token')
+        await AsyncStorage.removeItem('expo-push-token');
       }
+
     } catch (error) {
-      console.log(error)
+      console.log('Error getting push token:', error);
+    }
+  };
+
+  const handleNotificationResponse = async (response: Notifications.NotificationResponse) => {
+    const data = response.notification.request.content.data;
+    console.log('Notification data:', data);
+  
+    if (data?.type === 'verification') {
+      
+      navigationRef.current?.navigate('Verification', {
+        verificationSessionId: data.verificationSessionId,
+        userId: data.userId
+      });
     }
   };
 
   useEffect(() => {
-    genAndStore();
-    registerForPushNotifications();
+    Notifications.setNotificationHandler({
+      handleNotification: async (notification) => {
+        const data = notification.request.content.data;
+        
+        if (data?.type === 'verification') {
+          return {
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: true,
+            priority: Notifications.AndroidNotificationPriority.HIGH,
+          };
+        }
+        return {
+          shouldShowAlert: false,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+        };
+      },
+    });
+
+    const responseSubscription = Notifications.addNotificationResponseReceivedListener(handleNotificationResponse);
+    return () => responseSubscription.remove();
   }, [])
 
   const [fontLoaded] = useFonts({
@@ -152,19 +298,25 @@ export default function App() {
 
   return (
     <Provider store={store}>
+      <SocketProvider>
       <LanguageLoader />
       {showSplashScreen ? <SplashScreen /> :
         <TanstackProvider>
           <SafeAreaView style={{ backgroundColor: "#222831", width: "100%", height: "100%" }}>
             <LoaderSpin />
             <StatusBar barStyle="light-content" backgroundColor="#222831" />
-            <NavigationContainer>
+            <NavigationContainer ref={navigationRef}>
             {/* initialRouteName={userData?.id ? "Services" : "Language"} */}
               <Stack.Navigator initialRouteName={userData?.id ? "Services" : "Language"} screenOptions={{
                 contentStyle: {
                   backgroundColor: "#222831"
                 }
               }}>
+                <Stack.Screen
+                  name="Verification" 
+                  component={VerificationScreen} 
+                  options={{ headerShown: false }} 
+                />
                 <Stack.Screen name="LogScreen" component={LogScreen} options={{
                   headerShown: true,
                 }} />
@@ -206,6 +358,7 @@ export default function App() {
             </NavigationContainer>
           </SafeAreaView>
         </TanstackProvider>}
+        </SocketProvider>
     </Provider>
   )
 }

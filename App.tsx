@@ -58,13 +58,34 @@ export default function App() {
   });
 
   useEffect(() => {
-    genAndStore();
-    setupNotifications();
-    handlePendingNavigation();
-    const timeout = setTimeout(() => {
-      setShowSplashScreen(false);
-    }, 5000);
-    return () => clearTimeout(timeout);
+    const initializeApp = async () => {
+      await genAndStore();
+      await setupNotifications();
+      
+      // Check for initial notification that launched the app
+      const initialNotification = await Notifications.getLastNotificationResponseAsync();
+      if (initialNotification) {
+        const data = initialNotification.notification.request.content.data;
+        if (data?.type === 'verification' && data?.verificationSessionId && data?.userId) {
+          // Store navigation intent for after app is ready
+          await AsyncStorage.setItem('pendingNavigation', JSON.stringify({
+            screen: 'Verification',
+            params: {
+              verificationSessionId: data.verificationSessionId,
+              userId: data.userId
+            }
+          }));
+        }
+      }
+      
+      await handlePendingNavigation();
+      const timeout = setTimeout(() => {
+        setShowSplashScreen(false);
+      }, 5000);
+      return () => clearTimeout(timeout);
+    };
+
+    initializeApp();
   }, []);
 
   const handlePendingNavigation = async () => {
@@ -74,12 +95,19 @@ export default function App() {
         const { screen, params } = JSON.parse(pendingNav);
         // Clear the pending navigation
         await AsyncStorage.removeItem('pendingNavigation');
-        // Wait for navigation to be ready
-        setTimeout(() => {
-          if (navigationRef.current && screen) {
+        
+        // Create a function to attempt navigation
+        const attemptNavigation = () => {
+          if (navigationRef.current?.isReady() && screen) {
             navigationRef.current.navigate(screen, params);
+          } else {
+            // If navigation isn't ready, try again in 500ms
+            setTimeout(attemptNavigation, 500);
           }
-        }, 2000);
+        };
+        
+        // Start attempting navigation
+        attemptNavigation();
       }
     } catch (error) {
       console.log('Error handling pending navigation:', error);
@@ -127,30 +155,23 @@ export default function App() {
     });
 
     // Handle notification responses (clicks)
-    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+    const responseListener = Notifications.addNotificationResponseReceivedListener(async response => {
       console.log('Notification response:', response);
       const data = response.notification.request.content.data;
       
-      // Delay navigation slightly to ensure app is ready
-      setTimeout(() => {
-        if (data?.screen === 'Verification' && data?.params?.verificationSessionId && data?.params?.userId) {
-          if (navigationRef.current) {
-            navigationRef.current.navigate(data.screen, {
-              verificationSessionId: data.params.verificationSessionId,
-              userId: data.params.userId
-            });
-          } else {
-            // Store the navigation intent for when app becomes ready
-            AsyncStorage.setItem('pendingNavigation', JSON.stringify({
-              screen: data.screen,
-              params: {
-                verificationSessionId: data.params.verificationSessionId,
-                userId: data.params.userId
-              }
-            }));
+      if (data?.type === 'verification' && data?.verificationSessionId && data?.userId) {
+        // Store the navigation intent
+        await AsyncStorage.setItem('pendingNavigation', JSON.stringify({
+          screen: 'Verification',
+          params: {
+            verificationSessionId: data.verificationSessionId,
+            userId: data.userId
           }
-        }
-      }, 1000);
+        }));
+        
+        // Attempt navigation
+        await handlePendingNavigation();
+      }
     });
 
     // Register for push notifications

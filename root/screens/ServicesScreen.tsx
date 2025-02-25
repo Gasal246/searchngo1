@@ -37,7 +37,7 @@ const ServicesScreen = () => {
                         </View>
                         <Text style={styles.service_title}>Water Plus</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column}>
+                    <TouchableOpacity style={styles.service_column} onPress={() => navigation.navigate('UpdateProfile')}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/MessMate.png')} style={styles.service_icon} />
                         </View>

@@ -140,7 +140,10 @@ const UpdateProfile = () => {
                     <CameraModal
                         setImageUri={setImageUrl}>
                         {!imageError ? (
-                            <Image source={{ uri: imageUrl, cacheKey: `initial-profile-image` }} style={styles.previewImage} placeholder={require('../../assets/images/png/FaceMask.png')} />
+                            <Image 
+                             source={{ uri: imageUrl, cacheKey: `initial-profile-image` }}
+                             style={styles.previewImage} placeholder={require('../../assets/images/png/avatar_fallback.png')}
+                            />
                         ) : (
                             <View style={styles.camera_view}>
                                 <FontAwesome name="camera" size={60} color="gray" />

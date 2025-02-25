@@ -28,6 +28,7 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
     }, [permission]);
 
     useEffect(() => {
+        console.log(image);
         if (image) {
             setImageUri(image);
         }
@@ -41,26 +42,32 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
         setLoading(false);
     }
 
-    function toggleCameraFacing() {
-        setFacing(current => (current === 'back' ? 'front' : 'back'));
-    }
-
     async function takePicture() {
         if (cameraRef.current && cameraReady) {
             try {
                 const picture = await cameraRef.current.takePictureAsync({
                     skipProcessing: true,
-                    quality: 0.5, // Reduces the quality (optional)
+                    quality: 0.5,
                 });
     
-                // Resize and compress the image
-                const resizedImage = await ImageManipulator.manipulateAsync(
+                // Prepare image manipulations
+                const manipulations: ImageManipulator.Action[] = [
+                    { resize: { width: 800 } },
+                ];
+    
+                // Flip image horizontally if using front camera
+                if (facing === 'front') {
+                    manipulations.push({ flip: ImageManipulator.FlipType.Horizontal });
+                }
+    
+                // Process the image
+                const processedImage = await ImageManipulator.manipulateAsync(
                     picture.uri,
-                    [{ resize: { width: 800 } }], // Adjust width (height auto-scales)
+                    manipulations,
                     { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
                 );
     
-                setImage(resizedImage.uri as string);
+                setImage(processedImage.uri);
             } catch (error) {
                 console.error("Error capturing image:", error);
             } finally {
@@ -98,20 +105,20 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <View>
-                                <Text style={styles.modalTitle}>{'Face Camera'}</Text>
-                                <Text style={styles.modalDescription}>{translations[language].show_your_face}</Text>
+                            <View style={{ width: '80%'}}>
+                                <Text style={styles.modalTitle}>{'Profile Capture'}</Text>
+                                <Text style={styles.modalDescription}>{'Place your face on the frame, you may have to wait a bit after capturing image.'}</Text>
                             </View>
                             <TouchableOpacity
                                 style={styles.closeButton}
                                 onPress={handleCloseModal}
                             >
-                                <Entypo name="cross" size={28} color="#c9ffeb" />
+                                <Entypo name="cross" size={32} color="#c9ffeb" />
                             </TouchableOpacity>
                         </View>
                         {image ? (
                             <View style={styles.previewContainer}>
-                                <Image source={{ uri: image }} style={styles.previewImage} />
+                                <Image source={{ uri: image }} style={[styles.previewImage]} />
                                 <View style={styles.ImageButtonWrapper}>
                                     <TouchableOpacity style={styles.retakeButton} onPress={handleRetakeImage}>
                                         <MaterialIcons name="restart-alt" size={24} color="#ad7e7e" />
@@ -136,7 +143,7 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
                                     onCameraReady={handleCameraReady}
                                     autofocus="on"
                                     mode="picture"
-                                    mirror={false}
+                                    mirror={facing === 'front'}
                                 >
                                     <Image source={require('../../assets/images/png/FaceMask.png')} style={{ width: '100%', height: '100%', aspectRatio: 3 / 4}} />
                                 </CameraView>

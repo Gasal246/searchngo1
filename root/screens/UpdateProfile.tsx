@@ -14,12 +14,14 @@ import axios from 'axios';
 import { apiPrefix, currentApi, profilePrefix } from '../../lib/constants/constatntUrls';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
+import { guest_name, guest_uuid } from '../../lib/constants/guestData';
 // import FormData from 'form-data';
 
 const UpdateProfile = () => {
     const navigation = useNavigation<NavigationProp>();
     const language = useSelector((state: RootState) => state.language.language);
     const { user_data: userData, token: authToken } = useSelector((state: RootState) => state.authentication);
+    const { isGuest} = useSelector((state: RootState) => state.guest)
     const [isChanges, setIsChanges] = useState(false);
     const [fullName, setFullName] = useState<string>(userData?.name || '');
     const [imageUrl, setImageUrl] = useState<any>();
@@ -47,10 +49,19 @@ const UpdateProfile = () => {
     }, [fullName, imageUrl]);
 
     const handleNameOnChange = (text: string) => {
+        if(isGuest) return;
         setFullName(text)
     }
 
     const handleUpdateProfile = async () => {
+        if(isGuest) {
+            navigation.replace('Services');
+            return Toast.show({
+                type: 'info',
+                text1: 'Entered as a guest',
+                text2: "Explore the app without registering"
+            })
+        }
         // for users who already have a name and pic -- checking if anything changed ?
         if (!isChanges && fullName.trim().length > 0) {
             navigation.replace('Services');
@@ -134,14 +145,16 @@ const UpdateProfile = () => {
             <View style={styles.cover_view}>
                 <View style={styles.absolute_view}>
                     <Text style={styles.absolute_title}>{translations[language].update_pf_id}</Text>
-                    <Text style={styles.userid}>{splitString(userData?.uuid, 4)}</Text>
+                    <Text style={styles.userid}>{splitString((isGuest ? guest_uuid : userData?.uuid), 4)}</Text>
                 </View>
                 <View style={styles.form_view}>
+                    <Text style={{ color: 'gray' }}>click avatar to take photo</Text>
                     <CameraModal
+                        previousImage={imageUrl}
                         setImageUri={setImageUrl}>
                         {!imageError ? (
                             <Image 
-                             source={{ uri: imageUrl, cacheKey: `initial-profile-image` }}
+                             source={{ uri: imageUrl }}
                              style={styles.previewImage} placeholder={require('../../assets/images/png/avatar_fallback.png')}
                             />
                         ) : (
@@ -150,11 +163,12 @@ const UpdateProfile = () => {
                             </View>
                         )}
                     </CameraModal>
+
                     <View style={styles.input_area}>
                         <FontAwesome name='user-circle' size={30} color={"gray"} />
                         <TextInput placeholder={`${translations[language].update_pf_name}`}
                             style={styles.text_input}
-                            value={fullName}
+                            value={isGuest ? guest_name : fullName}
                             onChangeText={handleNameOnChange}
                         />
                     </View>
@@ -164,6 +178,7 @@ const UpdateProfile = () => {
                             <FontAwesome name="arrow-right" size={20} color="white" />
                         </View>
                     </GradientButtonOne>
+                    {isGuest && <Text style={{ color: 'gray' }}>You cannot change your name or update profile.</Text>}
                 </View>
             </View>
         </View>

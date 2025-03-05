@@ -9,10 +9,12 @@ import QRCode from 'react-native-qrcode-svg';
 import { translations } from '../../../lib/translations';
 import TimeCounter from '../utility/TimeCounter';
 import { BlurView } from 'expo-blur';
+import { guest_uuid } from '../../../lib/constants/guestData';
 
 const ConnectionQR = () => {
     const modalVisible = useSelector((state: RootState) => state.remoteModals.qrModal);
     const userData = useSelector((state: RootState) => state.authentication.user_data);
+    const { isGuest } = useSelector((state: RootState) => state.guest);
     const language = useSelector((state: RootState) => state.language.language);
     const { currentMemebership } = useSelector((state: RootState) => state.membership);
     const dispatch = useDispatch();
@@ -39,12 +41,18 @@ const ConnectionQR = () => {
                                     {userData?.uuid ? (
                                         <QRCode size={200} value={userData.uuid} />
                                     ) : (
-                                        <Text>Loading...</Text>
+                                        isGuest ? (
+                                            <QRCode size={200} value={guest_uuid} />
+                                        ) : (
+                                            <Text>Loading...</Text>
+                                        )
                                     )}
                                 </View>
                                 <View style={styles.uuid_section}>
                                     <Text style={{ ...styles.section_title, fontWeight: '500' }}>UUID</Text>
-                                    <Text style={styles.text_uuid}>{splitString(userData?.uuid, 4)}</Text>
+                                    <Text style={styles.text_uuid}>{splitString((isGuest ? guest_uuid : userData?.uuid), 4)}</Text>
+                                    {isGuest && <Text style={{ color: 'gray', fontSize: 12, marginTop: 5 }}>For Kiosks.</Text>}
+                                    {isGuest && <Text style={{ color: 'gray', fontSize: 12 }}>Scan The QR or Enter The UUID Manually.</Text>}
                                 </View>
                                 {currentMemebership?.package_name && <View style={styles.uuid_section}>
                                     <Text style={styles.section_title}>{translations[language].current_membership}</Text>

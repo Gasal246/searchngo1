@@ -10,9 +10,11 @@ const ServicesScreen = () => {
     const language = useSelector((state: RootState) => state.language.language);
     const navigation = useNavigation<NavigationProp>();
     const { token } = useSelector((state: RootState) => state.authentication);
+    const { isGuest } = useSelector((state: RootState) => state.guest);
 
     useEffect(() => {
         if(!token) {
+            if(isGuest) return;
             navigation.replace('Language');
         }
     }, [token])
@@ -37,7 +39,7 @@ const ServicesScreen = () => {
                         </View>
                         <Text style={styles.service_title}>Water Plus</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column} onPress={() => navigation.navigate('UpdateProfile')}>
+                    <TouchableOpacity style={styles.service_column}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/MessMate.png')} style={styles.service_icon} />
                         </View>

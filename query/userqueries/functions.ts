@@ -35,3 +35,30 @@ export async function updateExpoPushToken(formData: { expo_push_token: string },
     }
 }
 
+export async function updateMobileNumber(formData: { mobile: number, country_code: number }, token: string) {
+    try {
+        const res = await axiosInstance.post(`/users/change-mobile`, formData, {
+            headers: {
+                Authorization: formatBearerToken(token),
+            },
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export async function sendMobileChangeOTP(formData: { mobile: number, country_code: number }, token: string) {
+    try {
+        const res = await axiosInstance.post(`/users/verify-change-number`, formData, {
+            headers: {
+                Authorization: formatBearerToken(token),
+            },
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

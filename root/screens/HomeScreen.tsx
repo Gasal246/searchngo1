@@ -1,6 +1,6 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, View } from 'react-native';
 import GradientButtonOne from '../../components/shared/GradientButtonOne';
 import { useNavigation } from '@react-navigation/native';
 import { translations } from '../../lib/translations';
@@ -16,25 +16,6 @@ const HomeScreen = () => {
                 <Image source={require("../../assets/images/png/sngcolor.png")} style={{ width: 130, height: 100, objectFit: "contain" }} />
             </View>
             <View style={styles.container}>
-                {/* <View style={styles.membership_card}>
-                    <View style={styles.title_view}>
-                        <Text style={styles.title_text}>{translations[language].home_title}</Text>
-                    </View>
-                    <View style={styles.card_body}>
-                        <FontAwesome name='qrcode' size={100} color="gray" />
-                        <View style={styles.membership_details}>
-                            <Text style={styles.sgid}>SG ID : 1234-4567-8965-3214</Text>
-                            <View style={styles.flex_container}>
-                                <FontAwesome name='star' color="gray" size={15} />
-                                <Text style={styles.body_text}>{translations[language].home_premium_tag}</Text>
-                            </View>
-                            <View style={styles.flex_container}>
-                                <FontAwesome name='calendar' color="gray" size={15} />
-                                <Text style={styles.body_text}>{translations[language].home_sub_date}</Text>
-                            </View>
-                        </View>
-                    </View>
-                </View> */}
                 <View style={styles.connectivity_view}>
                     <Text style={styles.connectivity_text}>{translations[language].home_connectivity}</Text>
                     <Text style={styles.connectivity_desc}>{translations[language].home_conn_desc}</Text>

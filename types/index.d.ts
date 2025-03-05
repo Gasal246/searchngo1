@@ -19,4 +19,5 @@ declare type RootStackParamList = {
     verificationSessionId: string;
     userId: string;
   };
+  ChangeMobileNumber: undefined;
 };

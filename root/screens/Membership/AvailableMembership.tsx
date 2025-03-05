@@ -18,6 +18,7 @@ const AvailableMembership = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation<NavigationProp>()
   const token = useSelector((state: RootState) => state.authentication.token);
+  const { isGuest } = useSelector((state: RootState) => state.guest);
   const { upcomingMembership } = useSelector((state: RootState) => state.membership)
   const { mutateAsync: getInternetPackages, isPending: pendingInternetPackages } = useGetCampInternetPackages();
   const { mutateAsync: purchaseMembership } = usePurchaseNewMembership();
@@ -25,6 +26,11 @@ const AvailableMembership = () => {
   const currentSSID = useSelector((state: RootState) => state.networkData.ssid);
 
   useEffect(() => {
+    if(isGuest) {
+      Alert.alert("Oops", "We Are Not Providing Any Memberships For Demo Accounts. Please Sign Up To Continue.", [
+        { text: "OK", onPress: () => navigation.navigate('Services') }
+      ])
+    }
     if (!token) return;
     console.log("Current SSID: ", currentSSID)
     if(currentSSID?.split('_')[0] != 'SG') {

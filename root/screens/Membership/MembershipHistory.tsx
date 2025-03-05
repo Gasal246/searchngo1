@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import RootLayout from '../../layouts/RootLayout';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store';
-import GradientButtonOne from '../../../components/shared/GradientButtonOne';
 import UpcomingMembership from './components/UpcomingMembership';
 import ExpiredMembership from './components/ExpiredMembership';
 import { useGetUserMembershipDetails } from '../../../query/membership/queries';
@@ -13,12 +12,15 @@ import { loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { calculateValidityDate, formatDateString } from '../../../lib/utilities';
 import TimeCounter from '../../../components/shared/utility/TimeCounter';
 import { translations } from '../../../lib/translations';
+import { useNavigation } from '@react-navigation/native';
 
 type TabTypes = 'current' | 'upcoming' | 'expired';
 
 const MembershipHistory = () => {
-    const dispatch = useDispatch<AppDispatch>()
+    const dispatch = useDispatch<AppDispatch>();
+    const navigation = useNavigation<NavigationProp>()
     const token = useSelector((state: RootState) => state.authentication.token);
+    const { isGuest } = useSelector((state: RootState) => state.guest);
     const [membershipDetails, setMembershipDetails] = useState<any[]>([]);
     const [upcomingMembershipDetails, setUpcomingMembershipDetails] = useState<any[]>([]);
     const [expiredMembershipDetails, setExpireMembershipDetails] = useState<any[]>([]);
@@ -26,6 +28,11 @@ const MembershipHistory = () => {
     const language = useSelector((state: RootState) => state.language.language);
 
     const handleFetchMemebershipDetails = async () => {
+        if(isGuest) {
+            navigation.navigate('Services');
+            Alert.alert("🤷🏻‍♂️ Sorry!", "You Cannot Have Membership History!")
+            return;
+        }
         try {
             if (!token) {
                 return Toast.show({ type: 'error', text1: 'Un Authorised Access' })

@@ -43,6 +43,7 @@ const SideBar = () => {
   const navigation = useNavigation<NavigationProp>();
   const dispatch = useDispatch<AppDispatch>();
   const language = useSelector((state: RootState) => state.language.language);
+  const { isGuest } = useSelector((state: RootState) => state.guest);
   const { ssid: currentSSID } = useSelector(
     (state: RootState) => state.networkData
   );
@@ -303,6 +304,7 @@ const SideBar = () => {
                         styles.link_option,
                         orientation == "right" && styles.link_option_rtl,
                       ]}
+                      onPress={() => handleNavigation("ChangeMobileNumber")}
                     >
                       {orientation == "left" && (
                         <Entypo name="old-phone" size={20} color="black" />
@@ -336,7 +338,7 @@ const SideBar = () => {
                     <Text style={styles.section_title}>
                       {translations[language].application}
                     </Text>
-                    <TouchableOpacity
+                    {!isGuest &&<TouchableOpacity
                       style={[
                         styles.link_option,
                         orientation == "right" && styles.link_option_rtl,
@@ -352,8 +354,8 @@ const SideBar = () => {
                       {orientation == "right" && (
                         <Entypo name="location" size={18} color="black" />
                       )}
-                    </TouchableOpacity>
-                    <TouchableOpacity
+                    </TouchableOpacity>}
+                    {/* <TouchableOpacity
                       style={[
                         styles.link_option,
                         orientation == "right" && styles.link_option_rtl,
@@ -376,7 +378,7 @@ const SideBar = () => {
                           color="black"
                         />
                       )}
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity
                       style={[
                         styles.link_option,
@@ -391,8 +393,8 @@ const SideBar = () => {
                         {translations[language].sign_out}
                       </Text>
                       {orientation == "right" && (
-                        <MaterialIcons
-                          name="password"
+                        <FontAwesome
+                          name="sign-out"
                           size={20}
                           color="black"
                         />

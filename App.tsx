@@ -38,6 +38,7 @@ import { updateExpoPushToken } from './query/userqueries/functions';
 import LogScreen from './root/screens/LogScreen';
 import VerificationScreen from './root/screens/VerificationScreen';
 import { SocketProvider } from './context/socketContext';
+import ChangeMobileNumber from './root/screens/UtilityScreens/ChangeMobileNumber';
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -361,6 +362,9 @@ export default function App() {
                 />
                 <Stack.Screen name="LogScreen" component={LogScreen} options={{
                   headerShown: true,
+                }} />
+                <Stack.Screen name="ChangeMobileNumber" component={ChangeMobileNumber} options={{
+                  headerShown: false,
                 }} />
                 <Stack.Screen name="MembershipHistory" component={MembershipHistory} options={{
                   headerShown: false,

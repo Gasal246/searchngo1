@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import * as ImageManipulator from 'expo-image-manipulator';
 
-const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNode, title?: string, setImageUri: React.Dispatch<React.SetStateAction<string>> }) => {
+const CameraModal = ({ children, title, setImageUri, previousImage }: { children: React.ReactNode, title?: string, setImageUri: React.Dispatch<React.SetStateAction<string>>, previousImage?: string }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [facing, setFacing] = useState<CameraType>('front');
     const language = useSelector((state: RootState) => state.language.language)
@@ -38,6 +38,7 @@ const CameraModal = ({ children, title, setImageUri }: { children: React.ReactNo
 
     function handleCloseModal() {
         setModalVisible(false);
+        setImageUri(previousImage || '');
         setImage(null);
         setLoading(false);
     }

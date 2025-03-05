@@ -14,8 +14,10 @@ import ChangeBaseCampDialogue from '../../components/shared/Dialogs/ChangeBaseCa
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useDispatch<AppDispatch>();
     const { user_data } = useSelector((state: RootState) => state.authentication);
+    const { isGuest } = useSelector((state: RootState) => state.guest);
 
     useEffect(() => {
+        if(isGuest) return;
         if(user_data){
             if(!user_data.baseCampAvailable) {
                 dispatch(loadChangeBaseCampModal(true));
@@ -28,7 +30,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
             <ConnectionModal />
             <ConnectionQR />
             <ChangeBaseCampDialogue />
-                <FetchEssentials />
+                {!isGuest && <FetchEssentials />}
             <View style={styles.topbar_flex_container}>
                 <SideBar />
                 <View style={styles.center_logo}>

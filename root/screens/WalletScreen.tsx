@@ -16,7 +16,8 @@ import Toast from 'react-native-toast-message';
 const WalletScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const language = useSelector((state: RootState) => state.language.language);
-    const { token } = useSelector((state: RootState) => state.authentication)
+    const { token } = useSelector((state: RootState) => state.authentication);
+    const { isGuest } = useSelector((state: RootState) => state.guest);
     const dispatch = useDispatch<AppDispatch>();
     const [walletInfo, setWalletInfo] = useState<any>();
     const [transactions, setTransactions] = useState<any[]>([]);
@@ -104,6 +105,7 @@ const WalletScreen = () => {
     return (
         <RootLayout>
             <View style={styles.container}>
+                {isGuest && <Text style={{ color: 'gray', textAlign: 'center', marginBottom: 5 }}>! Wallet Is Inactive For Guest Users.</Text>}
                 {/* Wallet Card */}
                 <LinearGradient
                     colors={['#4AF4CF', '#00C9A3']}

@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import RootLayout from '../../layouts/RootLayout'
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native'
 import GradientButtonOne from '../../../components/shared/GradientButtonOne';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useGetCampInternetPackages } from '../../../query/camp/queries';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
-import { usePurchaseNewMembership } from '../../../query/membership/queries';
 import Toast from 'react-native-toast-message';
 import { refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import { fetchUserWallet } from '../../../redux/slices/appAuthenticationSlice';
@@ -21,7 +20,6 @@ const AvailableMembership = () => {
   const { isGuest } = useSelector((state: RootState) => state.guest);
   const { upcomingMembership } = useSelector((state: RootState) => state.membership)
   const { mutateAsync: getInternetPackages, isPending: pendingInternetPackages } = useGetCampInternetPackages();
-  const { mutateAsync: purchaseMembership } = usePurchaseNewMembership();
   const [packages, setPackages] = useState<any[]>([]);
   const currentSSID = useSelector((state: RootState) => state.networkData.ssid);
 
@@ -86,7 +84,6 @@ const AvailableMembership = () => {
   const handlePurchaseInternetPackage = async (packageId: string) => {
     dispatch(loadLoadingModal(true))
     try {
-      console.log(token, packageId)
       const response = await purchaseNewMembership({ package_id: packageId }, token! );
       await dispatch(refetchUserMembershipDetails(token!));
       console.log("Purchased Membership", response)
@@ -94,7 +91,7 @@ const AvailableMembership = () => {
         dispatch(fetchUserWallet(token!))
         return Toast.show({
           type: "success",
-          text1: "1 Package Added",
+          text1: "Package Added",
           text2: "new membership package added."
         })
       } else {

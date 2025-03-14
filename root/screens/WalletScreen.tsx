@@ -6,7 +6,7 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import RootLayout from '../layouts/RootLayout';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AppDispatch, RootState } from '../../redux/store';
-import { loadLoadingModal, loadQRModal } from '../../redux/slices/remoteModalSlice';
+import { loadChangeBaseCampModal, loadLoadingModal, loadQRModal } from '../../redux/slices/remoteModalSlice';
 import { useGetWalletInfo, useGetWalletTransactions } from '../../query/wallet/query';
 import { extractBracketPairs, formatDateString } from '../../lib/utilities';
 import { translations } from '../../lib/translations';
@@ -16,13 +16,13 @@ import Toast from 'react-native-toast-message';
 const WalletScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const language = useSelector((state: RootState) => state.language.language);
-    const { token } = useSelector((state: RootState) => state.authentication);
+    const { token, user_data } = useSelector((state: RootState) => state.authentication);
     const { isGuest } = useSelector((state: RootState) => state.guest);
     const dispatch = useDispatch<AppDispatch>();
     const [walletInfo, setWalletInfo] = useState<any>();
     const [transactions, setTransactions] = useState<any[]>([]);
 
-    const { mutateAsync: getWallet, isPending: fetchingWalletInfo } = useGetWalletInfo();
+    const { isPending: fetchingWalletInfo } = useGetWalletInfo();
     const { mutateAsync: getTransactions, isPending: fetchingTransactions } = useGetWalletTransactions();
 
     const slideAnim = new Animated.Value(300);
@@ -33,6 +33,15 @@ const WalletScreen = () => {
             useNativeDriver: true,
         }).start();
     }, []);
+
+    useEffect(() => {
+        if(isGuest) return;
+        if(user_data){
+            if(!user_data.baseCampAvailable) {
+                dispatch(loadChangeBaseCampModal(true));
+            }
+        }
+    }, [user_data])
 
     const handleFetchWallet = async (token: string) => {
         try {

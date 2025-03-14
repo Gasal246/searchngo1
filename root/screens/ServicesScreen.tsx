@@ -1,23 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RootLayout from '../layouts/RootLayout';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../redux/store';
 import { translations } from '../../lib/translations';
+import { loadServiceInactiveModal } from '../../redux/slices/remoteModalSlice';
 
 const ServicesScreen = () => {
     const language = useSelector((state: RootState) => state.language.language);
     const navigation = useNavigation<NavigationProp>();
     const { token } = useSelector((state: RootState) => state.authentication);
     const { isGuest } = useSelector((state: RootState) => state.guest);
+    const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
         if(!token) {
             if(isGuest) return;
             navigation.replace('Language');
         }
-    }, [token])
+    }, [token]);
+
+    const handleShowServiceInactiveMessage = () => {
+        dispatch(loadServiceInactiveModal(true));
+    }
 
     return (
         <RootLayout>
@@ -33,43 +39,43 @@ const ServicesScreen = () => {
                         </View>
                         <Text style={styles.service_title}>Wallet</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column} onPress={() => navigation.navigate('WaterPlus')}>
+                    <TouchableOpacity style={styles.service_column} onPress={handleShowServiceInactiveMessage}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/WaterPlus.png')} style={styles.service_icon} />
                         </View>
                         <Text style={styles.service_title}>Water Plus</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column}>
+                    <TouchableOpacity style={styles.service_column} onPress={handleShowServiceInactiveMessage}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/MessMate.png')} style={styles.service_icon} />
                         </View>
                         <Text style={styles.service_title}>Mess Mate</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column}>
+                    <TouchableOpacity style={styles.service_column} onPress={handleShowServiceInactiveMessage}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/SmartWash.png')} style={styles.service_icon} />
                         </View>
                         <Text style={styles.service_title}>Smart Wash</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column}>
+                    <TouchableOpacity style={styles.service_column} onPress={handleShowServiceInactiveMessage}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/Ex-rate.png')} style={styles.service_icon} />
                         </View>
                         <Text style={styles.service_title}>Ex-Rate</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column}>
+                    <TouchableOpacity style={styles.service_column} onPress={handleShowServiceInactiveMessage}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/BestOffers.png')} style={styles.service_icon} />
                         </View>
                         <Text style={styles.service_title}>Best Offers</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column}>
+                    <TouchableOpacity style={styles.service_column} onPress={handleShowServiceInactiveMessage}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/BigWin.png')} style={styles.service_icon} />
                         </View>
                         <Text style={styles.service_title}>Big Win</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.service_column}>
+                    <TouchableOpacity style={styles.service_column} onPress={handleShowServiceInactiveMessage}>
                         <View style={styles.service_view}>
                             <Image source={require('../../assets/images/png/HelpDesk.png')} style={styles.service_icon} />
                         </View>
@@ -119,7 +125,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20
     },
     scrollViewWrapper: {
-        width: '100%',
         flex: 1,
         marginTop: 10,
         borderTopRightRadius: 20,
@@ -127,15 +132,13 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     grid_scroll_view: {
-        width: '100%',
         flex: 1,
-        paddingHorizontal: 0,
+        paddingBottom: 20, // Add padding to prevent cutoff
     },
     grid_view_fixed: {
         width: "100%",
         height: '35%',
-        marginBottom: 25,
-        marginTop: 15
+        marginBottom: 15, // Reduced margin to create more space
     },
     grid_service_view: {
         display: "flex",

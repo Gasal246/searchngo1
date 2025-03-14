@@ -21,7 +21,7 @@ export const store = configureStore({
     camp: campReducer,
     logs: logsReducer,
     socket: socketReducer,
-    guest: guestReducer
+    guest: guestReducer,
   },
 });
 

@@ -1,13 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store';
 import NetInfo from '@react-native-community/netinfo';
 import { fetchLocationData, storeSSID } from '../../../redux/slices/NetworkSlice';
 import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
-import { loadConnectionModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
-import { useValidateCamp } from '../../../query/camp/queries';
+import { loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { loadToken, loadUserData } from '../../../redux/slices/appAuthenticationSlice';
 import { clearAll, refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,10 +19,7 @@ const FetchEssentials = () => {
     const dispatch = useDispatch<AppDispatch>();
     const navigation = useNavigation<any>();
     const [hasInitialized, setHasInitialized] = useState(false);
-    const { location_info: locationData, ssid: currentSSID } = useSelector((state: RootState) => state.networkData);
     const { token: authToken } = useSelector((state: RootState) => state.authentication);
-    const { mutateAsync: validateCamp } = useValidateCamp();
-    const [locationinformation, setLocationInformation] = useState<any>(null);
 
     const showErrorToast = useCallback((title: string, message: string) => {
         Toast.show({
@@ -65,7 +61,6 @@ const FetchEssentials = () => {
             const res: any = await fetchLocation(ssid);
             dispatch(storeSSID(ssid)); // Update Redux with the new SSID
             dispatch(fetchLocationData(res)); // Assume this action stores location data
-            setLocationInformation(res);
             console.log(res)
             dispatch(storeLog({ key: 'fetched_location_information_state', value: res }));
             return res;
@@ -98,7 +93,6 @@ const FetchEssentials = () => {
 
             if (ssId?.split('_')[0] !== 'SG') {
                 dispatch(storeLog({ key: 'invalid_ssid', value: 'Not an SG network' }));
-                setLocationInformation(null);
                 return;
             }
 

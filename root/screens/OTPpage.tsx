@@ -3,7 +3,7 @@ import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 're
 import { OTPInput } from '../../components/shared/OtpInput';
 import GradientButtonOne from '../../components/shared/GradientButtonOne';
 import { FontAwesome } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import { translations } from '../../lib/translations';
 import { useDispatch, useSelector } from 'react-redux';
 import Toast from 'react-native-toast-message';
@@ -129,7 +129,12 @@ const OTPpage = () => {
                     text2: "OTP Verification Successfull"
                 })
                 await registerForPushNotifications();
-                return navigation.replace('UpdateProfile');
+                return navigation.dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [{ name: 'UpdateProfile' }],
+                    })
+                );
             } else {
                 dispatch(loadLoadingModal(false))
                 return Toast.show({

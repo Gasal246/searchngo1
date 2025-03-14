@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../redux/store';
-import { loadChangeBaseCampModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
+import { loadChangeBaseCampAlreadyShown, loadChangeBaseCampModal, loadLoadingModal } from '../../../redux/slices/remoteModalSlice';
 import { Entypo } from '@expo/vector-icons';
 import GradientButtonOne from '../GradientButtonOne';
 import { assignUserCamp, changeUserCamp, validateCampApiFunction } from '../../../query/camp/functions';
@@ -11,18 +11,27 @@ import { loadToken, loadUserData } from '../../../redux/slices/appAuthentication
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { refetchUserMembershipDetails } from '../../../redux/slices/membershipDetails';
 import { BlurView } from 'expo-blur';
+import { useNavigation } from '@react-navigation/native';
 
 const ChangeBaseCampDialogue = () => {
 
     const modalVisible = useSelector((state: RootState) => state.remoteModals.changeBaseCampModal);
     const currentUserData = useSelector((state: RootState) => state.authentication.user_data);
     const authToken = useSelector((state: RootState) => state.authentication.token);
-
+    const { changeBaseCampAlreadyShown } = useSelector((state: RootState) => state.remoteModals)
     const locationData = useSelector((state: RootState) => state.networkData.location_info);
+    const navigation = useNavigation<NavigationProp>();
 
     const dispatch = useDispatch<AppDispatch>()
-    const toggleModal = () => {
-        dispatch(loadChangeBaseCampModal(!modalVisible));
+    const closeModal = () => {
+        if(changeBaseCampAlreadyShown){
+            dispatch(loadChangeBaseCampModal(false));
+            navigation.replace('Services');
+            return;
+        }
+        dispatch(loadChangeBaseCampModal(false));
+        dispatch(loadChangeBaseCampAlreadyShown(true));
+        return;
     }
 
     const handleSubmitCampId = async () => {
@@ -60,7 +69,7 @@ const ChangeBaseCampDialogue = () => {
                                     console.log(error)
                                 } finally {
                                     dispatch(loadLoadingModal(false));
-                                    toggleModal();
+                                    closeModal();
                                 }
                             }
                         },
@@ -68,7 +77,7 @@ const ChangeBaseCampDialogue = () => {
                             text: "Discard",
                             style: "cancel",
                             onPress: () => {
-                                toggleModal();
+                                closeModal();
                                 Toast.show({
                                     type: "success",
                                     text1: "That's my dude!!"
@@ -104,7 +113,7 @@ const ChangeBaseCampDialogue = () => {
                                     console.log(error)
                                 } finally {
                                     dispatch(loadLoadingModal(false));
-                                    toggleModal();
+                                    closeModal();
                                 }
                             }
                         },
@@ -112,7 +121,7 @@ const ChangeBaseCampDialogue = () => {
                             text: "Discard",
                             style: "cancel",
                             onPress: () => {
-                                toggleModal()
+                                closeModal()
                             }
                         }
                     ],
@@ -145,7 +154,7 @@ const ChangeBaseCampDialogue = () => {
                                 console.log(error)
                             } finally {
                                 dispatch(loadLoadingModal(false));
-                                toggleModal();
+                                closeModal();
                             }
                         }
                     },
@@ -153,7 +162,7 @@ const ChangeBaseCampDialogue = () => {
                         text: "Nop!",
                         style: "cancel",
                         onPress: () => {
-                            toggleModal()
+                            closeModal()
                         }
                     }
                 ],
@@ -169,9 +178,9 @@ const ChangeBaseCampDialogue = () => {
                 transparent={true}
                 visible={modalVisible}
             >
-                <TouchableWithoutFeedback onPress={toggleModal}>
+                <TouchableWithoutFeedback onPress={closeModal}>
                     <BlurView experimentalBlurMethod="dimezisBlurView" intensity={60} tint="dark" style={styles.modalOverlay}>
-                        <TouchableOpacity style={styles.close_button} onPress={toggleModal}>
+                        <TouchableOpacity style={styles.close_button} onPress={closeModal}>
                             <Entypo name="cross" size={28} color="white" />
                         </TouchableOpacity>
 
@@ -198,7 +207,7 @@ const ChangeBaseCampDialogue = () => {
                                         </View>
                                         :
                                         <View>
-                                            <GradientButtonOne onPress={toggleModal} style={{ borderRadius: 10 }} colors={['#F35248', '#F35248']}>
+                                            <GradientButtonOne onPress={closeModal} style={{ borderRadius: 10 }} colors={['#F35248', '#F35248']}>
                                                 <Text style={styles.action_text}>Cancel Setup</Text>
                                             </GradientButtonOne>
                                         </View>}

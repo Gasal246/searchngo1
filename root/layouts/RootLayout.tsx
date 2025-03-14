@@ -10,33 +10,24 @@ import ConnectionQR from '../../components/shared/Connection/ConnectionQR';
 import { AppDispatch, RootState } from '../../redux/store';
 import FetchEssentials from '../../components/shared/Connection/FetchEssentials';
 import ChangeBaseCampDialogue from '../../components/shared/Dialogs/ChangeBaseCampDialogue';
+import ServiceInactiveDialogue from '../../components/shared/Dialogs/ServiceInactiveDialogue';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useDispatch<AppDispatch>();
-    const { user_data } = useSelector((state: RootState) => state.authentication);
     const { isGuest } = useSelector((state: RootState) => state.guest);
-
-    useEffect(() => {
-        if(isGuest) return;
-        if(user_data){
-            if(!user_data.baseCampAvailable) {
-                dispatch(loadChangeBaseCampModal(true));
-            }
-        }
-    }, [user_data])
 
     return (
         <SafeAreaView style={{ backgroundColor: "#222831", width: "100%", height: "100%" }}>
             <ConnectionModal />
             <ConnectionQR />
             <ChangeBaseCampDialogue />
-                {!isGuest && <FetchEssentials />}
+            <ServiceInactiveDialogue />
+            {!isGuest && <FetchEssentials />}
             <View style={styles.topbar_flex_container}>
                 <SideBar />
                 <View style={styles.center_logo}>
                     <Image source={require("../../assets/images/png/sngcolor.png")} style={{ width: 60, height: 70, objectFit: "contain" }} />
                 </View>
-                {/* <TouchableOpacity onPress={() => navigation.navigate("Profile")}><FontAwesome5 name="user" size={22} color="white" /></TouchableOpacity> */}
                 <TouchableOpacity style={styles.qr_trigger} onPress={() => dispatch(loadQRModal(true))}><MaterialCommunityIcons name="qrcode" size={30} color="white" /></TouchableOpacity>
             </View>
             {children}

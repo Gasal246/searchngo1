@@ -34,6 +34,12 @@ const authenticationSlice = createSlice({
             state.token = null;
             state.user_data = null;
         },
+        clearAuthenticationStates: (state) => {
+            state.isAuthenticated = false;
+            state.token = null;
+            state.user_data = null;
+            state.wallet_info = null;
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(fetchUserWallet.fulfilled, (state, action: PayloadAction<any>) => {
@@ -52,6 +58,6 @@ export const fetchUserWallet = createAsyncThunk(
     }
 )
 
-export const { loadAuthentication, loadUserData, loadToken, loadLogoutApp } = authenticationSlice.actions;
+export const { loadAuthentication, loadUserData, loadToken, loadLogoutApp, clearAuthenticationStates } = authenticationSlice.actions;
 export default authenticationSlice.reducer;
 

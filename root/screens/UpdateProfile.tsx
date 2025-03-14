@@ -2,14 +2,14 @@ import { FontAwesome } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import GradientButtonOne from '../../components/shared/GradientButtonOne';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { translations } from '../../lib/translations';
 import { RootState } from '../../redux/store';
 import CameraModal from '../../components/shared/CameraModal';
 import { formatBearerToken, splitString } from '../../lib/utils';
 import Toast from 'react-native-toast-message';
-import { loadToken, loadUserData } from '../../redux/slices/appAuthenticationSlice';
+import { clearAuthenticationStates, loadToken, loadUserData } from '../../redux/slices/appAuthenticationSlice';
 import axios from 'axios';
 import { apiPrefix, currentApi, profilePrefix } from '../../lib/constants/constatntUrls';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,7 +21,7 @@ const UpdateProfile = () => {
     const navigation = useNavigation<NavigationProp>();
     const language = useSelector((state: RootState) => state.language.language);
     const { user_data: userData, token: authToken } = useSelector((state: RootState) => state.authentication);
-    const { isGuest} = useSelector((state: RootState) => state.guest)
+    const { isGuest } = useSelector((state: RootState) => state.guest)
     const [isChanges, setIsChanges] = useState(false);
     const [fullName, setFullName] = useState<string>(userData?.name || '');
     const [imageUrl, setImageUrl] = useState<any>();
@@ -49,13 +49,18 @@ const UpdateProfile = () => {
     }, [fullName, imageUrl]);
 
     const handleNameOnChange = (text: string) => {
-        if(isGuest) return;
+        if (isGuest) return;
         setFullName(text)
     }
 
     const handleUpdateProfile = async () => {
-        if(isGuest) {
-            navigation.replace('Services');
+        if (isGuest) {
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Services' }],
+                })
+            );
             return Toast.show({
                 type: 'info',
                 text1: 'Entered as a guest',
@@ -64,7 +69,13 @@ const UpdateProfile = () => {
         }
         // for users who already have a name and pic -- checking if anything changed ?
         if (!isChanges && fullName.trim().length > 0) {
-            navigation.replace('Services');
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Services' }],
+                })
+            );
+            return;
         }
         try {
             const formData = new FormData();
@@ -88,7 +99,7 @@ const UpdateProfile = () => {
             }
 
             if (!hasChanges) {
-                navigation.replace('Services');
+                navigation.reset('Services');
                 return;
             };
 
@@ -103,8 +114,6 @@ const UpdateProfile = () => {
                 }
             );
 
-            console.log("Update Profile Response: ", response)
-
             if (response?.error) {
                 Toast.show({
                     type: 'error',
@@ -114,8 +123,8 @@ const UpdateProfile = () => {
             }
 
             if (response?.data) {
-                dispatch(loadToken(response.data.token));
-                dispatch(loadUserData(JSON.stringify(response.data.user_data)));
+                await dispatch(loadUserData(JSON.stringify(response.data.user_data)));
+                await dispatch(loadToken(response.data.token));
                 await AsyncStorage.multiSet([
                     ['user_data', JSON.stringify(response.data.user_data)],
                     ['user_token', response.data.token]
@@ -124,7 +133,28 @@ const UpdateProfile = () => {
                     type: "success",
                     text1: "Profile Successfully Updated!"
                 })
-                navigation.replace('Services');
+
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: 'Services' }],
+                    })
+                );
+                return;
+            } else {
+                dispatch(clearAuthenticationStates());
+                await AsyncStorage.clear();
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: 'Language' }],
+                    })
+                );
+                return Toast.show({
+                    type: 'error',
+                    text1: "Something went wrong!",
+                    text2: "Please check the log for more details."
+                })
             }
 
         } catch (error) {
@@ -134,6 +164,7 @@ const UpdateProfile = () => {
                 text1: "Error On Initial Profile Update!",
                 text2: "Please check the log for more details."
             });
+            return;
         }
     };
 
@@ -153,9 +184,9 @@ const UpdateProfile = () => {
                         previousImage={imageUrl}
                         setImageUri={setImageUrl}>
                         {!imageError ? (
-                            <Image 
-                             source={{ uri: imageUrl }}
-                             style={styles.previewImage} placeholder={require('../../assets/images/png/avatar_fallback.png')}
+                            <Image
+                                source={{ uri: imageUrl }}
+                                style={styles.previewImage} placeholder={require('../../assets/images/png/avatar_fallback.png')}
                             />
                         ) : (
                             <View style={styles.camera_view}>

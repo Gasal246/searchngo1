@@ -80,4 +80,5 @@ export const malayalam = {
     membership_charge: "അംഗത്വ ചാർജ്",
     transactions: "ഇടപാടുകൾ",
     balance: "ബാലൻസ്",
+    companion_screen: "സഹായിയായ ഉപകരണങ്ങൾ"
 }

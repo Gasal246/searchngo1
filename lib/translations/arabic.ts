@@ -80,4 +80,5 @@ export const arabic = {
     membership_charge: "رسوم العضوية",
     transactions: "المعاملات",
     balance: "الرصيد",
+    companion_screen: "الشاشة المصاحبة"
 }

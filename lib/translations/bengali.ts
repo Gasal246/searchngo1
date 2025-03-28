@@ -80,4 +80,5 @@ export const bengali = {
     membership_charge: "সদস্যপদ চার্জ",
     transactions: "লেনদেন",
     balance: "ব্যালান্স",
+    companion_screen: "সহকারী ডিভাইস"
 }

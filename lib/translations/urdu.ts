@@ -80,4 +80,5 @@ export const urdu = {
     membership_charge: "رکنیت چارج",
     transactions: "لین دین",
     balance: "بیلنس",
+    companion_screen: "ساتھی آلات"
 }

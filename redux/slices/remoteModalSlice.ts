@@ -7,6 +7,7 @@ interface RemoteModalState {
     changeBaseCampModal: boolean;
     serviceInactiveModal: boolean;
     changeBaseCampAlreadyShown: boolean;
+    companionCameraModal: boolean;
 }
 
 const initialState: RemoteModalState = {
@@ -15,7 +16,8 @@ const initialState: RemoteModalState = {
     qrModal: false,
     changeBaseCampModal: false,
     serviceInactiveModal: false,
-    changeBaseCampAlreadyShown: false
+    changeBaseCampAlreadyShown: false,
+    companionCameraModal: false
 }
 
 const remoteModalSlice = createSlice({
@@ -39,10 +41,13 @@ const remoteModalSlice = createSlice({
         },
         loadChangeBaseCampAlreadyShown: (state, action: PayloadAction<boolean>) => {
             state.changeBaseCampAlreadyShown = action.payload;
+        },
+        loadCompanionCameraModal: (state, action: PayloadAction<boolean>) => {
+            state.companionCameraModal = action.payload;
         }
     }
 })
 
-export const { loadConnectionModal, loadLoadingModal, loadQRModal, loadChangeBaseCampModal, loadServiceInactiveModal, loadChangeBaseCampAlreadyShown } = remoteModalSlice.actions;
+export const { loadConnectionModal, loadLoadingModal, loadQRModal, loadChangeBaseCampModal, loadServiceInactiveModal, loadChangeBaseCampAlreadyShown, loadCompanionCameraModal } = remoteModalSlice.actions;
 export default remoteModalSlice.reducer;
 

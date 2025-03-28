@@ -79,5 +79,6 @@ export const telugu = {
     view: "చూడండి",
     membership_charge: "సభ్యత్వ ఛార్జి",
     transactions: "వ్యావహారాలు",
-    balance: "బ్యాలెన్స్"
+    balance: "బ్యాలెన్స్",
+    companion_screen: "సహాయక పరికరాలు"
 }

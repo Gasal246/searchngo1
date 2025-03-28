@@ -79,5 +79,6 @@ export const english = {
     view: "VIEW",
     membership_charge: "Membership Charge",
     transactions: "Transactions",
-    balance: "Balance", 
+    balance: "Balance",
+    companion_screen: "Other Devices"
 }

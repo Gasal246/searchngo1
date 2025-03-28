@@ -39,6 +39,8 @@ import LogScreen from './root/screens/LogScreen';
 import VerificationScreen from './root/screens/VerificationScreen';
 import { SocketProvider } from './context/socketContext';
 import ChangeMobileNumber from './root/screens/UtilityScreens/ChangeMobileNumber';
+import CompanionScreen from './root/screens/Companion/CompanionScreen';
+import CompanionQRScreen from './root/screens/Companion/CompanionQRScreen';
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -362,6 +364,12 @@ export default function App() {
                 />
                 <Stack.Screen name="LogScreen" component={LogScreen} options={{
                   headerShown: true,
+                }} />
+                <Stack.Screen name="CompanionScreen" component={CompanionScreen} options={{
+                  headerShown: false,
+                }} />
+                <Stack.Screen name="CompanionQRScreen" component={CompanionQRScreen} options={{
+                  headerShown: false,
                 }} />
                 <Stack.Screen name="ChangeMobileNumber" component={ChangeMobileNumber} options={{
                   headerShown: false,

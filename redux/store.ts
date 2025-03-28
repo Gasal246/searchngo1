@@ -9,6 +9,7 @@ import campReducer from './slices/campSlice';
 import logsReducer from './slices/logSlice';
 import socketReducer from './slices/socketSlice';
 import guestReducer from './slices/guestSlice';
+import userAppReducer from './slices/userappSlice';
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     logs: logsReducer,
     socket: socketReducer,
     guest: guestReducer,
+    userapp: userAppReducer
   },
 });
 

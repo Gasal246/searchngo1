@@ -20,4 +20,6 @@ declare type RootStackParamList = {
     userId: string;
   };
   ChangeMobileNumber: undefined;
+  CompanionScreen: undefined;
+  CompanionQRScreen: undefined;
 };

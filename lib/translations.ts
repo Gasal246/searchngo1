@@ -109,6 +109,7 @@ type TranslationProps = Record<string, {
     membership_charge: string;
     transactions: string;
     balance: string;
+    companion_screen: string;
 }>
 
 export const translations: TranslationProps = {

@@ -65,15 +65,15 @@ const AvailableMembership = () => {
         `You Are Purchasing ${plan?.package_name}, for ${plan?.package_price + " " + plan?.currency_code}`,
         [
           {
+            text: "Discard",
+            style: "cancel",
+            onPress: () => { }
+          },
+          {
             text: "Continue",
             onPress: () => {
               handlePurchaseInternetPackage(plan?.package_id)
             }
-          },
-          {
-            text: "Discard",
-            style: "cancel",
-            onPress: () => { }
           }
         ],
         { cancelable: false }

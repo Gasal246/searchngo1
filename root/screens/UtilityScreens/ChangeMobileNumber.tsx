@@ -14,7 +14,7 @@ import { AppDispatch, RootState } from "../../../redux/store";
 import { LinearGradient } from "expo-linear-gradient";
 import PhoneInput from "../../../components/shared/PhoneInput";
 import { OTPInput } from "../../../components/shared/OtpInput";
-import { sendMobileChangeOTP } from "../../../query/userqueries/functions";
+import { changeMobileNumber, sendMobileChangeOTP } from "../../../query/userqueries/functions";
 import { formatDateString } from "../../../lib/utilities";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { guest_country_code, guest_phone } from "../../../lib/constants/guestData";
@@ -79,17 +79,11 @@ const ChangeMobileNumber = () => {
   const handleSendOTP = async () => {
     if(!phoneNumber) return;
     if (`${userData?.country_code}` + `${userData?.phone}` == `${countryCode}` + `${phoneNumber}` ) {
-      Alert.alert( "Same Number", "Ohh! You have already this mobile number! 😃" );
+      Alert.alert( "Same Number", "Ohh! You actually using this number! 😃" );
       return;
     }
     if (!authToken) {
       Alert.alert("Malpractice", "You need to login first.");
-      return;
-    }
-    const nextMobChange = await AsyncStorage.getItem('next_mobile_number_change_on');
-    
-    if(nextMobChange && new Date(formatDateString(nextMobChange)) > new Date()){
-      Alert.alert("Wait for Next Change", "Your next change is on " + formatDateString(nextMobChange))
       return;
     }
 
@@ -109,12 +103,10 @@ const ChangeMobileNumber = () => {
               };
               const response = await sendMobileChangeOTP(formData, authToken);
               if (response.status == 200) {
-                await AsyncStorage.setItem('next_mobile_number_change_on', new Date(response?.data?.userData?.next_mobile_change_at).toString());
                 Alert.alert("OTP Send!", response.message);
                 setIsOtpSend(true);
               }
               if (response?.status == 302) {
-                await AsyncStorage.setItem('next_mobile_number_change_on', new Date(response?.data?.userData?.next_mobile_change_at).toString());
                 Alert.alert("Recently Changed", `You have changed your number recently. Please wait for next change. @${formatDateString(response?.data?.userData?.next_mobile_change_at)}`);
               }
               if (response.error) {
@@ -137,6 +129,37 @@ const ChangeMobileNumber = () => {
       ],
       { cancelable: false }
     );
+  };
+
+  const handleConfirmOTP = async () => {
+    if(!authToken) return;
+    if(!isOtpSend) return;
+    if(!codes?.length) return;
+    const otp = codes.join("");
+    if(otp.length < 5) return;
+    setIsLoading(true);
+    try {
+      const formData = {
+        otp: parseInt(otp),
+        mobile: parseInt(phoneNumber),
+        country_code: parseInt(countryCode),
+      };
+      const response = await changeMobileNumber(formData, authToken);
+      if (response.status == 200) {
+        Alert.alert("Mobile Number Changed!", response.message);
+        setIsOtpSend(false);
+        setIsChange(false);
+        return;
+      }
+      if (response.error) {
+        Alert.alert("Error", response.message);
+      }
+    } catch (error: any) {
+      console.log(error);
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -261,6 +284,7 @@ const ChangeMobileNumber = () => {
                     marginTop: 10,
                     alignItems: "center",
                   }}
+                  onPress={handleConfirmOTP}
                 >
                   <Text
                     style={{

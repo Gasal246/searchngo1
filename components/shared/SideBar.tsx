@@ -355,6 +355,23 @@ const SideBar = () => {
                         <Entypo name="location" size={18} color="black" />
                       )}
                     </TouchableOpacity>}
+                    <TouchableOpacity
+                      style={[
+                        styles.link_option,
+                        orientation == "right" && styles.link_option_rtl,
+                      ]}
+                      onPress={() => handleNavigation("CompanionScreen")}
+                    >
+                      {orientation == "left" && (
+                        <MaterialIcons name="devices" size={18} color="black" />
+                      )}
+                      <Text style={styles.link_text}>
+                        {translations[language].companion_screen}
+                      </Text>
+                      {orientation == "right" && (
+                        <MaterialIcons name="devices" size={18} color="black" />
+                      )}
+                    </TouchableOpacity>
                     {/* <TouchableOpacity
                       style={[
                         styles.link_option,

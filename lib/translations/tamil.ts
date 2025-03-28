@@ -80,4 +80,5 @@ export const tamil = {
     membership_charge: "உறுப்பினர் கட்டணம்",
     transactions: "பரிவர்த்தனைகள்",
     balance: "வழிசெய்தல்",
+    companion_screen: "துணை சாதனங்கள்"
 }

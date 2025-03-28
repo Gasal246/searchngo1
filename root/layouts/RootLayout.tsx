@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from '../../redux/store';
 import FetchEssentials from '../../components/shared/Connection/FetchEssentials';
 import ChangeBaseCampDialogue from '../../components/shared/Dialogs/ChangeBaseCampDialogue';
 import ServiceInactiveDialogue from '../../components/shared/Dialogs/ServiceInactiveDialogue';
+import CompanionScanner from '../../components/shared/CompanionScanner';
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useDispatch<AppDispatch>();
@@ -21,6 +22,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
             <ConnectionModal />
             <ConnectionQR />
             <ChangeBaseCampDialogue />
+            <CompanionScanner />
             <ServiceInactiveDialogue />
             {!isGuest && <FetchEssentials />}
             <View style={styles.topbar_flex_container}>

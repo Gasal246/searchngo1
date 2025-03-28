@@ -125,9 +125,18 @@ const MobileVerification = () => {
                         <TextInput placeholder={`${translations[language].mobile_v_placeholder_email}`} value={value} onChangeText={handleEmailInput} textContentType='emailAddress' style={styles.emailInput} />
                     </View>
                 }
-                <GradientButtonOne disabled={sendingOtp} colors={["#4EFBE6", "#5AE7A6"]} style={{ marginTop: 20, borderRadius: 10 }} onPress={handleSendOtp}>
+                <GradientButtonOne disabled={sendingOtp} colors={["#4EFBE6", "#5AE7A6"]} style={{ marginTop: 20, borderRadius: 10, padding: 10 }} onPress={handleSendOtp}>
                     <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                         <Text style={styles.textSubmit}>{sendingOtp ? 'Sending..' : translations[language].mobile_v_submit} </Text>
+                        <FontAwesome name="arrow-right" size={20} color="white" />
+                    </View>
+                </GradientButtonOne>
+            </View>
+            <View style={{ borderColor: 'white', borderWidth: 2, borderRadius: 20, paddingHorizontal: 40, paddingVertical: 20, marginTop: 20, marginHorizontal: 20 }}>
+                <Text style={{ textAlign: 'center', color: 'white', fontWeight: 'bold', fontSize: 16 }}>Use this device as a companion ?</Text>
+                <GradientButtonOne disabled={sendingOtp} colors={["#4EFBE6", "#5AE7A6"]} style={{ marginTop: 20, borderRadius: 10, padding: 10 }} onPress={() => navigation.navigate('CompanionQRScreen')}>
+                    <View style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 5 }}>
+                        <Text style={styles.textSubmit}>Companion Mode</Text>
                         <FontAwesome name="arrow-right" size={20} color="white" />
                     </View>
                 </GradientButtonOne>

@@ -62,3 +62,17 @@ export async function sendMobileChangeOTP(formData: { mobile: number, country_co
         throw error;
     }
 }
+
+export async function changeMobileNumber(formData: { mobile: number, country_code: number, otp: number }, token: string) {
+    try {
+        const res = await axiosInstance.post(`/users/verify-change-number`, formData, {
+            headers: {
+                Authorization: formatBearerToken(token),
+            },
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

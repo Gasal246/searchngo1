@@ -80,4 +80,5 @@ export const hindi = {
     membership_charge: "सदस्यता शुल्क",
     transactions: "लेन-देन",
     balance: "बैलेंस",
+    companion_screen: "सहायक उपकरण"
 }
